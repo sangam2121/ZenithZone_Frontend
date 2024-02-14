@@ -4,8 +4,9 @@ import Navbar from '../components/Navbar'
 const Library = () => {
   return (
     <>
-      <Navbar/>
-      <div>Library</div>
+      <Navbar />
+      
+
     </>
 
   )

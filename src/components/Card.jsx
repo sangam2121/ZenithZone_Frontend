@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaArrowRightLong } from "react-icons/fa6";
+import { Link } from 'react-router-dom';
 
 const Card = () => {
     return (
@@ -11,7 +12,7 @@ const Card = () => {
             </div>
             <p class='font-[400] text-[12px] text-[#6A6969] mb-2.5'>Inspirational designs, illustrations, and graphic elements from the world’s best designers.Want more inspiration</p>
             <div class='flex justify-start items-center gap-1'>
-                <button class='font-[400] text-[#121F49] text-xl'>Read Book </button>
+                <button class='font-[400] text-[#121F49] text-xl cursor-pointer'><Link to='/read-journal'>Read Book </Link></button>
                 <FaArrowRightLong  class='font-[400] text-[#121F49] text-xl'/>
             </div>
 

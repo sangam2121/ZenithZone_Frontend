@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaStar, FaPlus, FaRegCircleRight} from "react-icons/fa6";
+import { Link } from 'react-router-dom';
 
 
 const DoctorCard = () => {
@@ -22,7 +23,7 @@ const DoctorCard = () => {
                     <div class='flex items-center gap-1'>  <FaPlus class='font-semibold'></FaPlus><span class='font-semibold'>1500 Patients</span></div>
                     <p class='text-sm'>Norvic Hospital, Thapathali</p>
                 </div>
-                <FaRegCircleRight class='text-2xl font-[200] cursor-pointer'></FaRegCircleRight>
+                <Link to='/doctor-detail'><FaRegCircleRight class='text-2xl font-[200] cursor-pointer'></FaRegCircleRight></Link>
             </div>
         </div>
     )

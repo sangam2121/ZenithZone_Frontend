@@ -14,6 +14,7 @@ import MultiStepForm from './components/MultiStepForm'
 import UserDashboard from './pages/UserDashboard'
 import DoctorDashboard from './pages/DoctorDashboard'
 import ReadJournal from './pages/ReadJournal'
+import DoctorDetails from './components/DoctorDetails'
 
 
 
@@ -31,6 +32,7 @@ const App = () => {
         <Route path='/doctor-details-form' element={<MultiStepForm/>}></Route>
         <Route path='/user-dashboard' element={<UserDashboard/>}></Route>
         <Route path='/doctor-dashboard' element={<DoctorDashboard/>}></Route>
+        <Route path='/doctor-detail' element={<DoctorDetails/>}></Route>
         <Route path='/read-journal' element={<ReadJournal/>}></Route>
         <Route path="*" element={<Error/>}></Route>
       </Routes>
