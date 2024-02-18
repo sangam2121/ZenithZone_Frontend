@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
 
+
+
+function StarIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-5 h-5 text-yellow-700"
+        >
+            <path
+                fillRule="evenodd"
+                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                clipRule="evenodd"
+            />
+        </svg>
+    );
+}
+
 const MyTabs = () => {
     const [activeTab, setActiveTab] = useState('first');
 
@@ -10,17 +29,35 @@ const MyTabs = () => {
 
     return (
         <>
-           <Navbar/>
-            {/* <div href="#" class="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row  hover:bg-gray-100 ">
-                <img class="object-cover w-full rounded-t-lg  md:h-auto md:w-48 md:rounded-none md:rounded-s-lg" src="/images/doctor.jpeg" alt="" />
-                <div class="flex flex-col justify-between p-4 leading-normal">
-                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Noteworthy technology acquisitions 2021</h5>
-                    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                </div>
-            </div> */}
-            
-            
+            <Navbar />
 
+            <div className="bg-white rounded-lg p-4 w-[95%] mx-auto">
+                <div className="flex items-center gap-4 pt-0 pb-8">
+                    <img
+                        className="w-12 h-12 rounded-full"
+                        src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80"
+                        alt="tania andrew"
+                    />
+                    <div className="flex flex-col w-full gap-0.5">
+                        <div className="flex items-center justify-between">
+                            <h5 className="text-blue-gray text-lg">Tania Andrew</h5>
+                            <div className="flex items-center gap-0">
+                                <StarIcon />
+                                <StarIcon />
+                                <StarIcon />
+                                <StarIcon />
+                                <StarIcon />
+                            </div>
+                        </div>
+                        <p className="text-blue-gray">Frontend Lead @ Google</p>
+                    </div>
+                </div>
+                <div className="mb-6 p-0">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
             <div className="mb-4 border-b border-gray-200 dark:border-gray-700 ml-12">
                 <ul
                     className="flex flex-wrap -mb-px text-sm font-medium text-center"

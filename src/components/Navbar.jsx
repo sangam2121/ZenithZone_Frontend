@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Link,NavLink } from 'react-router-dom';
 
-const Navbar = () => {
 
+
+const Navbar = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   return (
 
     <nav class="bg-white border-gray-200 dark:bg-gray-900 mb-3 max-w-[1200px] mx-auto">

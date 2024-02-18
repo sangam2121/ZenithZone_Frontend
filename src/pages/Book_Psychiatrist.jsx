@@ -1,8 +1,30 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import DoctorCard from '../components/DoctorCard'
+import { useEffect, useState } from 'react'
+
 
 const Book_Psychiatrist = () => {
+  const [doctorList, setDoctorList] = useState([])
+  useEffect(() => {
+
+    const fetchDoctor = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/lists`, {
+          method: 'GET'
+        })
+        const data = await response.json()
+        setDoctorList(data.results)
+        // console.log(data.results[0])
+      }
+      catch (error) {
+        console.log(error)
+      }
+    }
+    fetchDoctor()
+  }, [])
+
+  
   return (
     <>
       <Navbar />
@@ -22,9 +44,17 @@ const Book_Psychiatrist = () => {
 
 
         <div class='grid grid-cols-3 gap-10'>
-          <DoctorCard></DoctorCard>
-          <DoctorCard></DoctorCard>
-          <DoctorCard></DoctorCard>
+          {
+            doctorList.map((doctor) => {
+              return(<DoctorCard
+                firstName={doctor.user.first_name}
+                lastName={doctor.user.last_name}
+                img={doctor.image}
+                clinic={doctor.clinic}
+                specialization={doctor.speciality}
+              ></DoctorCard>)
+            })
+          }
         </div>
       </div>
     </>

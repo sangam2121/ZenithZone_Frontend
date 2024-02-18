@@ -15,6 +15,7 @@ import UserDashboard from './pages/UserDashboard'
 import DoctorDashboard from './pages/DoctorDashboard'
 import ReadJournal from './pages/ReadJournal'
 import DoctorDetails from './components/DoctorDetails'
+import RegisterModal from './components/RegisterModal'
 
 
 
@@ -28,7 +29,7 @@ const App = () => {
         <Route path="/chat" element={<Chat/>}></Route>
         <Route path="/login" element={<Login/>}></Route>
         <Route path="/book-psychiatrist" element={<Book_Psychiatrist/>}></Route>
-        <Route path='/register' element={<Register/>}></Route>
+        <Route path='/register' element={<RegisterModal/>}></Route>
         <Route path='/doctor-details-form' element={<MultiStepForm/>}></Route>
         <Route path='/user-dashboard' element={<UserDashboard/>}></Route>
         <Route path='/doctor-dashboard' element={<DoctorDashboard/>}></Route>
