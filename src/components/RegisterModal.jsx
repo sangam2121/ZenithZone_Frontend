@@ -15,27 +15,32 @@ const RegisterModal = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(JSON.stringify(form))
+    
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/auth/register`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/auth/register/`, {
                 method: 'POST',
                 body: JSON.stringify(form),
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 toast.success('Registration successful!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
             } else {
-                toast.error(`Registration failed: ${data.message}`, {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 3000,
+                // Extract and display error messages
+                Object.keys(data).forEach((key) => {
+                    data[key].forEach((error) => {
+                        toast.error(`${key}: ${error}`, {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    });
                 });
             }
         } catch (error) {
@@ -45,7 +50,7 @@ const RegisterModal = () => {
             }
         }
     };
-
+    
     return (
         <>
         
