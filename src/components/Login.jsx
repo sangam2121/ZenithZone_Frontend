@@ -30,6 +30,11 @@ const Login = () => {
             console.log(data);
 
             if (response.ok) {
+                const refresh = Object(data).refresh;
+                const access = Object(data).access;
+                localStorage.setItem("refresh", refresh);
+                localStorage.setItem("access", access);
+
                 toast.success('Login successful!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
@@ -88,7 +93,7 @@ const Login = () => {
                             <button class=' w-[100%] h-10 bg-white rounded-lg font-semibold'>Login With Google</button>
                         </div>
 
-                        <p class='mt-5'>Not have an account? <Link>register</Link></p>
+                        <p class='mt-5'>Not have an account? <Link to="/register">register</Link></p>
 
                     </div>
                 </div>
