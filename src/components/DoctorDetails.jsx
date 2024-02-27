@@ -1,37 +1,104 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
+import { FaStar } from "react-icons/fa6";
 
-
-
-function StarIcon() {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-5 h-5 text-yellow-700"
-        >
-            <path
-                fillRule="evenodd"
-                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                clipRule="evenodd"
-            />
-        </svg>
-    );
-}
+//'doctor': '6c79933d-0df6-4993-9568-746c65612fd7',
+//'patient': '4b4569aa-62f1-4a72-90a7-99bd405db717',
 
 const MyTabs = () => {
     const [activeTab, setActiveTab] = useState('first');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [appointment, setAppointment] = useState({
+        'doctor': '1',
+        'patient': '4b4569aa-62f1-4a72-90a7-99bd405db717',
+    });
 
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
     };
 
+    const handleBookAppointmentClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+
+    const handelChange = (e) => {
+        setAppointment({
+            ...appointment,
+            [e.target.name]: e.target.value
+        })
+
+    }
+    const handelSubmit = async (e) => {
+        console.log(appointment)
+        try {
+            e.preventDefault();
+
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/create/`, {
+                method: 'post',
+                body: JSON.stringify(appointment),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("access")}`
+                }
+            })
+           
+            const data = await response.text();
+            if (response.ok) {
+                console.log("Successful", data);
+                var appointmentId = data.id;
+                console.log(appointmentId);
+                // handlePayment(appointmentId);
+            }
+            else {
+                console.log(data);
+
+            }
+
+        } catch (error) {
+            console.log("Error on booking",data)
+        }
+    }
+
+    const handlePayment = async (appointmentId) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/pay/`, {
+                method: 'post',
+                body: JSON.stringify({
+                    "payment_id": `${appointmentId}`,
+                    "redirect_url": "http://localhost:5173/doctor-detail"
+                }),
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("access")}`
+                }
+            })
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("Successful", data);
+            }
+            else {
+                console.log("Failled", data);
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+
     return (
         <>
             <Navbar />
-
-            <div className="bg-white rounded-lg p-4 w-[95%] mx-auto">
+            <div className="bg-white rounded-lg p-4 w-[98%]  mx-auto border-2">
                 <div className="flex items-center gap-4 pt-0 pb-8">
                     <img
                         className="w-12 h-12 rounded-full"
@@ -42,22 +109,33 @@ const MyTabs = () => {
                         <div className="flex items-center justify-between">
                             <h5 className="text-blue-gray text-lg">Tania Andrew</h5>
                             <div className="flex items-center gap-0">
-                                <StarIcon />
-                                <StarIcon />
-                                <StarIcon />
-                                <StarIcon />
-                                <StarIcon />
+                                <FaStar class='text-[orange]' />
+                                <FaStar class='text-[orange]' />
+                                <FaStar class='text-[orange]' />
+                                <FaStar class='text-[orange]' />
+                                <FaStar class='text-[orange]' />
+
                             </div>
                         </div>
                         <p className="text-blue-gray">Frontend Lead @ Google</p>
                     </div>
                 </div>
-                <div className="mb-6 p-0">
-                    <p>
+                <div className=" p-0">
+                    <div className="flex items-center gap-0">
 
-                    </p>
+                        <button
+                            type="button"
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+                            onClick={handleBookAppointmentClick}
+                        >
+                            Book Appointment
+                        </button>
+
+                    </div>
                 </div>
             </div>
+
+
             <div className="mb-4 border-b border-gray-200 dark:border-gray-700 ml-12">
                 <ul
                     className="flex flex-wrap -mb-px text-sm font-medium text-center"
@@ -211,6 +289,67 @@ const MyTabs = () => {
 
                 </div>
             </div>
+
+
+            <div>
+                {/* Backdrop Overlay */}
+                <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isModalOpen ? 'block' : 'hidden'}`} onClick={handleCloseModal}></div>
+
+                {/* Modal */}
+                <div id="modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isModalOpen ? 'block' : 'hidden'}`}>
+
+                    <div class="relative p-4 w-full max-w-md max-h-full">
+
+                        <div class="relative bg-white rounded-lg shadow">
+
+                            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    Book Doctor
+                                </h3>
+                                <button type="button" onClick={handleCloseModal} class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+
+                            <form method="post" class="p-4 md:p-5" onSubmit={handelSubmit}>
+                                <div class="grid gap-4 mb-4 grid-cols-2">
+                                    <div class="col-span-2">
+                                        <label for="date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
+                                        <input type="date" name="date" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required="" onChange={handelChange} />
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-4 mb-4 grid-cols-2">
+                                    <div class="col-span-2">
+
+                                        <label for="time_at" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Time</label>
+                                        <select id="time_at" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " onChange={handelChange} name="time_at">
+                                            <option selected>Choose your appropriate time</option>
+                                            <option value="09:00">09:00 AM</option>
+                                            <option value="11:00">11:00 AM</option>
+                                            <option value="13:00">01:00 PM</option>
+                                            <option value="15:00">03:00 PM</option>
+                                            <option value="17:00">05:00 PM</option>
+                                        </select>
+
+
+                                    </div>
+                                </div>
+
+
+                                <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path></svg>
+                                    Book
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </>
     );
 };

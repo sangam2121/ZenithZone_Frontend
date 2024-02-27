@@ -15,7 +15,7 @@ const Book_Psychiatrist = () => {
         })
         const data = await response.json()
         setDoctorList(data.results)
-        // console.log(data.results[0])
+       console.log(data.results[7])
       }
       catch (error) {
         console.log(error)
