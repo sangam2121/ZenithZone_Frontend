@@ -1,8 +1,29 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState,useEffect } from 'react';
+import { Link,useNavigate} from 'react-router-dom';
+import { authenticate } from "../utils/auth";
+
 
 const Navbar = () => {
-  const [login, setLogin] = useState(true);
+  const [login, setLogin] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const isAuthenticated = await authenticate();
+        if (!isAuthenticated) {
+          navigate('/login');
+        } else {
+          setLogin(true)
+        }
+      } catch (error) {
+        console.error('Error in useEffect:', error);
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900 mb-3 max-w-[1200px] mx-auto">

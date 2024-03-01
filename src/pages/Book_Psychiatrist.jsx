@@ -15,7 +15,7 @@ const Book_Psychiatrist = () => {
         })
         const data = await response.json()
         setDoctorList(data.results)
-       console.log(data.results[7])
+      //  console.log(data.results)
       }
       catch (error) {
         console.log(error)
@@ -47,6 +47,8 @@ const Book_Psychiatrist = () => {
           {
             doctorList.map((doctor) => {
               return(<DoctorCard
+                doctorId={doctor.id}
+                doctorUserId={doctor.user.id}
                 firstName={doctor.user.first_name}
                 lastName={doctor.user.last_name}
                 img={doctor.image}

@@ -32,8 +32,9 @@ const App = () => {
         <Route path='/doctor-details-form' element={<MultiStepForm/>}></Route>
         <Route path='/user-dashboard' element={<UserDashboard/>}></Route>
         <Route path='/doctor-dashboard' element={<DoctorDashboard/>}></Route>
-        <Route path='/doctor-detail' element={<DoctorDetails/>}></Route>
-        <Route path='/read-journal' element={<ReadJournal/>}></Route>
+        <Route path='/doctor-detail/:doctorUserId' element={<DoctorDetails/>}></Route>
+        <Route path='/read-journal/' element={<ReadJournal/>}></Route>
+        <Route path='/read-journal/:journalId' element={<ReadJournal/>}></Route>
         <Route path="*" element={<Error/>}></Route>
       </Routes>
     </BrowserRouter>

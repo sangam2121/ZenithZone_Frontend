@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 
 const DoctorCard = (props) => {
+     console.log(props)
     return (
         <div class='flex flex-col p-3 w-[300px] bg-white shadow-2xl border-1 border-slate-600 pb-6'>
             <img src={props.img} alt='doctor image' class='mb-2.5 rounded-lg'></img>
@@ -23,7 +24,7 @@ const DoctorCard = (props) => {
                     <div class='flex items-center gap-1'>  <FaPlus class='font-semibold'></FaPlus><span class='font-semibold'>1500 Patients</span></div>
                     <p class='text-sm'>{props.clinic}</p>
                 </div>
-                <Link to='/doctor-detail'><FaRegCircleRight class='text-2xl font-[200] cursor-pointer'></FaRegCircleRight></Link>
+                <Link to={`/doctor-detail/${props.doctorUserId}`}><FaRegCircleRight class='text-2xl font-[200] cursor-pointer'></FaRegCircleRight></Link>
             </div>
         </div>
     )

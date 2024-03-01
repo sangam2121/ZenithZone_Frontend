@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
 import { FaStar } from "react-icons/fa6";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useParams } from 'react-router-dom';
 
 //'doctor': '6c79933d-0df6-4993-9568-746c65612fd7',
 //'patient': '4b4569aa-62f1-4a72-90a7-99bd405db717',
 
 const MyTabs = () => {
+    
     const [activeTab, setActiveTab] = useState('first');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [appointment, setAppointment] = useState({
         'doctor': '1',
-        'patient': '4b4569aa-62f1-4a72-90a7-99bd405db717',
+        'patient': '5122bc06-13a6-490d-8bf9-078fe236cb82',
     });
 
     const handleTabClick = (tabId) => {
@@ -46,21 +50,40 @@ const MyTabs = () => {
                     'Authorization': `Bearer ${localStorage.getItem("access")}`
                 }
             })
-           
-            const data = await response.text();
+
+            const data = await response.json();
             if (response.ok) {
+               
                 console.log("Successful", data);
                 var appointmentId = data.id;
-                console.log(appointmentId);
+                // console.log(appointmentId);
+                handleCloseModal()
+                toast.success('Thank you for booking. Pay for continue..', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
                 // handlePayment(appointmentId);
             }
             else {
-                console.log(data);
-
+                Object.values(data).forEach((value) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((error) => {
+                            toast.error(error, {
+                                position: toast.POSITION.TOP_RIGHT,
+                                autoClose: 3000,
+                            });
+                        });
+                    } else {
+                        toast.error(value, {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    }
+                });
             }
 
         } catch (error) {
-            console.log("Error on booking",data)
+            console.log("Error on booking", data)
         }
     }
 
@@ -98,6 +121,7 @@ const MyTabs = () => {
     return (
         <>
             <Navbar />
+            <ToastContainer />
             <div className="bg-white rounded-lg p-4 w-[98%]  mx-auto border-2">
                 <div className="flex items-center gap-4 pt-0 pb-8">
                     <img

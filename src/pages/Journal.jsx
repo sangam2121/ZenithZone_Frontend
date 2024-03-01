@@ -37,6 +37,7 @@ const Journal = () => {
           {journalList.length > 0 ? (
             journalList.map((item) => (
               <Card key={item.id}
+                id={item.id}
                 image={item.thumbnail}
                 title={item.title}
                 author={`${item.author.first_name} ${item.author.last_name}`}
