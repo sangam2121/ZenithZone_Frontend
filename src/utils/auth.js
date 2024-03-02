@@ -3,7 +3,7 @@ const authenticate = async () => {
     const accessToken = localStorage.getItem('access');
 
     if (!accessToken) {
-      console.error('No access token available');
+      // console.error('No access token available');
       return false; // No access token available
     }
 
@@ -19,7 +19,7 @@ const authenticate = async () => {
 
       // Check if the refresh token is present
       if (!refreshToken) {
-        console.error('No refresh token available');
+        // console.error('No refresh token available');
         return false;
       }
 
@@ -33,14 +33,14 @@ const authenticate = async () => {
 
       if (refreshResponse.ok) {
         const { access } = await refreshResponse.json();
-        console.log('New access token:', access);
+        // console.log('New access token:', access);
         localStorage.setItem('access', access);
-        console.log('Access token refreshed successfully');
+        // console.log('Access token refreshed successfully');
         return true;
       }
 
       if (refreshResponse.status === 401) {
-        console.error('Failed to refresh access token: Refresh token is invalid');
+        // console.error('Failed to refresh access token: Refresh token is invalid');
         return false;
       }
     }

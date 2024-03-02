@@ -3,14 +3,13 @@ import Navbar from '../components/Navbar'
 import HeroSection from '../components/HeroSection'
 import Card from '../components/Card'
 import Footer from '../components/Footer'
-import { authenticate } from "../utils/auth"
-import { useNavigate } from "react-router-dom"
-import { useEffect } from 'react'
+
+
 
 
 
 const Home = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // useEffect(() => {
   //   const fetchData = async () => {

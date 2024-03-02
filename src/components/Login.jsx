@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useLocation,useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react'
 import Navbar from './Navbar';
+import { useAuth } from '../context/authContext';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
-    const location=useLocation();
-    const navigate=useNavigate();
+    const location = useLocation();
+    const navigate = useNavigate();
     const registrationSuccess = location.state?.registrationSuccess;
     const isNotAuauthenticated = location.state?.isNotAuauthenticated;
+    const { dispatch } = useAuth();
 
 
     useEffect(() => {
@@ -21,7 +23,7 @@ const Login = () => {
             });
         }
 
-        if(isNotAuauthenticated){
+        if (isNotAuauthenticated) {
             toast.error('You are unauthenticated. Login here to continue.', {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 3000,
@@ -29,7 +31,7 @@ const Login = () => {
         }
     }, []);
 
-    
+
     const [form, setform] = useState({});
 
     const handleChange = (e) => {
@@ -53,15 +55,19 @@ const Login = () => {
             });
 
             const data = await response.json();
-            console.log(data);
 
             if (response.ok) {
                 const refresh = Object(data).refresh;
                 const access = Object(data).access;
                 localStorage.setItem("refresh", refresh);
                 localStorage.setItem("access", access);
+                const decodedData = jwtDecode(access);
+                dispatch({
+                    type: 'LOGIN',
+                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImage: "img.jpg" },
+                });
 
-                navigate('/user-dashboard',{state:{isLoggedIn:true}})
+                navigate('/user-dashboard', { state: { isLoggedIn: true } })
             } else {
                 Object.values(data).forEach((value) => {
                     if (Array.isArray(value)) {
@@ -89,7 +95,7 @@ const Login = () => {
 
     return (
         <>
-        <Navbar/>
+            <Navbar />
             <div class='flex items-center justify-center w-[100%]'>
                 <div class='bg-[rgb(254,238,233)] w-[60%] h-[80%] rounded-2xl flex justify-between shadow-lg'>
 

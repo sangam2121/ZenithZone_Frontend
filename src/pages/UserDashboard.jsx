@@ -8,7 +8,7 @@ import Navbar from '../components/Navbar';
 import JournalWriteCard from '../components/JournalWriteCard';
 import LibraryCard from '../components/LibraryCard';
 import ProfileCard from "../components/ProfileCard"
-import 'react-toastify/dist/ReactToastify.css';
+
 
 
 const UserDashboard = () => {

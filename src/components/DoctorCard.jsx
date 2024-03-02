@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 
 const DoctorCard = (props) => {
-     console.log(props)
+    //  console.log(props)
     return (
         <div class='flex flex-col p-3 w-[300px] bg-white shadow-2xl border-1 border-slate-600 pb-6'>
             <img src={props.img} alt='doctor image' class='mb-2.5 rounded-lg'></img>

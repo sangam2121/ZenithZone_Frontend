@@ -1,20 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import { FaStar } from "react-icons/fa6";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useParams } from 'react-router-dom';
-
-//'doctor': '6c79933d-0df6-4993-9568-746c65612fd7',
-//'patient': '4b4569aa-62f1-4a72-90a7-99bd405db717',
+import { useParams,useNavigate } from 'react-router-dom';
+import { authenticate } from '../utils/auth';
 
 const MyTabs = () => {
-    
+    const navigate=useNavigate();
+    useEffect(() => {
+        fetchDoctorDetail();
+
+    }, [])
+
+
+    const { doctorUserId } = useParams();
+    const [doctorDetail, setDoctorDetail] = useState();
     const [activeTab, setActiveTab] = useState('first');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [paymentId,setPaymentId]=useState(null);
+
     const [appointment, setAppointment] = useState({
-        'doctor': 1,
+        'doctor': null
     });
+
+    const fetchDoctorDetail = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${doctorUserId}`, {
+                method: "GET",
+            })
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setDoctorDetail(data);
+            }
+            else {
+                console.log("Error occured while fetching doctor detail");
+            }
+
+        } catch (error) {
+            console.log("Error occured!!!");
+        }
+    }
+    const fetchData = async () => {
+        try {
+            const isAuthenticated = await authenticate();
+            if (!isAuthenticated) {
+                navigate('/login', { state: { isNotAuauthenticated: true } });
+            } 
+            else{
+                handleBookAppointmentClick();
+            }
+        } catch (error) {
+            console.error('Error in useEffect:', error);
+        }
+    };
+    const handlePaymentModalClose = () => {
+        setIsPaymentModalOpen(false)
+    }
+    const handlePaymentModalOpen = () => {
+        setIsPaymentModalOpen(true)
+    }
 
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
@@ -32,12 +78,13 @@ const MyTabs = () => {
     const handelChange = (e) => {
         setAppointment({
             ...appointment,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            'doctor': doctorDetail.id
         })
 
     }
     const handelSubmit = async (e) => {
-        console.log(appointment)
+        //console.log(appointment)
         try {
             e.preventDefault();
 
@@ -52,16 +99,11 @@ const MyTabs = () => {
 
             const data = await response.json();
             if (response.ok) {
-               
+
                 console.log("Successful", data);
-                var paymentId = data.payment;
-                console.log(paymentId);
+                setPaymentId(data.payment);
                 handleCloseModal()
-                toast.success('Thank you for booking. Pay for continue..', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 3000,
-                });
-                handlePayment(paymentId);
+                handlePaymentModalOpen();
             }
             else {
                 Object.values(data).forEach((value) => {
@@ -86,7 +128,7 @@ const MyTabs = () => {
         }
     }
 
-    const handlePayment = async (paymentId) => {
+    const handlePayment = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/pay/`, {
                 method: 'post',
@@ -103,10 +145,27 @@ const MyTabs = () => {
             const data = await response.json();
 
             if (response.ok) {
-                console.log("Successful", data);
+                // console.log("Successful", data);
+                const redirect_url=data?.payment_url;
+                handlePaymentModalClose();
+                window.open(redirect_url, '_blank').focus();
             }
             else {
-                console.log("Failled", data);
+                Object.values(data).forEach((value) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((error) => {
+                            toast.error(error, {
+                                position: toast.POSITION.TOP_RIGHT,
+                                autoClose: 3000,
+                            });
+                        });
+                    } else {
+                        toast.error(value, {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    }
+                });
             }
 
 
@@ -116,261 +175,290 @@ const MyTabs = () => {
 
     }
 
+    const cancelPayment=()=>{
+
+    }
+
 
     return (
         <>
             <Navbar />
-            <div className="bg-white rounded-lg p-4 w-[98%]  mx-auto border-2">
-                <div className="flex items-center gap-4 pt-0 pb-8">
-                    <img
-                        className="w-12 h-12 rounded-full"
-                        src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80"
-                        alt="tania andrew"
-                    />
-                    <div className="flex flex-col w-full gap-0.5">
-                        <div className="flex items-center justify-between">
-                            <h5 className="text-blue-gray text-lg">Tania Andrew</h5>
+            {doctorDetail ? (
+                <div>
+                    <div className="bg-white rounded-lg p-4 w-[98%]  mx-auto border-2">
+                        <div className="flex items-center gap-4 pt-0 pb-8">
+                            <img
+                                className="w-12 h-12 rounded-full"
+                                src={doctorDetail.image}
+                                alt="doctor image"
+                            />
+                            <div className="flex flex-col w-full gap-0.5">
+                                <div className="flex items-center justify-between">
+                                    <h5 className="text-blue-gray text-lg">{`${doctorDetail.user.first_name} ${doctorDetail.user.last_name}`}</h5>
+                                    <div className="flex items-center gap-0">
+                                        <FaStar className='text-[orange]' />
+                                        <FaStar className='text-[orange]' />
+                                        <FaStar className='text-[orange]' />
+                                        <FaStar className='text-[orange]' />
+                                        <FaStar className='text-[orange]' />
+
+                                    </div>
+                                </div>
+                                <p className="text-blue-gray">{doctorDetail.speciality}</p>
+                            </div>
+                        </div>
+                        <div className=" p-0">
                             <div className="flex items-center gap-0">
-                                <FaStar class='text-[orange]' />
-                                <FaStar class='text-[orange]' />
-                                <FaStar class='text-[orange]' />
-                                <FaStar class='text-[orange]' />
-                                <FaStar class='text-[orange]' />
 
-                            </div>
-                        </div>
-                        <p className="text-blue-gray">Frontend Lead @ Google</p>
-                    </div>
-                </div>
-                <div className=" p-0">
-                    <div className="flex items-center gap-0">
+                                <button
+                                    type="button"
+                                    className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+                                    onClick={fetchData}
+                                >
+                                    Book Appointment
+                                </button>
 
-                        <button
-                            type="button"
-                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
-                            onClick={handleBookAppointmentClick}
-                        >
-                            Book Appointment
-                        </button>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <div className="mb-4 border-b border-gray-200 dark:border-gray-700 ml-12">
-                <ul
-                    className="flex flex-wrap -mb-px text-sm font-medium text-center"
-                    id="default-tab"
-                    data-tabs-toggle="#default-tab-content"
-                    role="tablist"
-                >
-                    <li className="me-2" role="presentation">
-                        <button
-                            className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'first' ? 'border-blue-500' : ''
-                                }`}
-                            id="first-tab"
-                            onClick={() => handleTabClick('first')}
-                            role="tab"
-                            aria-controls="first"
-                            aria-selected={activeTab === 'first'}
-                        >
-                            About
-                        </button>
-                    </li>
-                    <li className="me-2" role="presentation">
-                        <button
-                            className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'second' ? 'border-blue-500' : ''
-                                }`}
-                            id="second-tab"
-                            onClick={() => handleTabClick('second')}
-                            role="tab"
-                            aria-controls="second"
-                            aria-selected={activeTab === 'second'}
-                        >
-                            Review
-                        </button>
-                    </li>
-                    <li role="presentation">
-                        <button
-                            className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'third' ? 'border-blue-500' : ''
-                                }`}
-                            id="third-tab"
-                            onClick={() => handleTabClick('third')}
-                            role="tab"
-                            aria-controls="third"
-                            aria-selected={activeTab === 'third'}
-                        >
-                            Location
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div id="default-tab-content">
-                <div
-                    className={`p-4 rounded-lg bg-gray-50 dark:bg-gray-800 ${activeTab === 'first' ? 'block' : 'hidden'
-                        }`}
-                    id="first"
-                    role="tabpanel"
-                    aria-labelledby="first-tab"
-                >
-                    <div class="container mx-auto p-6">
-                        <p class="text-lg text-gray-700 leading-7">
-                            Welcome to my profile! I am Dr. Stone, a dedicated and compassionate healthcare professional with a commitment to providing excellent medical care. With years of experience in brain, I strive to offer personalized and comprehensive healthcare services to my patients.
-
-                            My approach to patient care is rooted in empathy and a patient-centric philosophy. I believe in fostering open communication, listening to patients' concerns, and working collaboratively to achieve the best possible health outcomes. Whether you are seeking preventive care, managing chronic conditions, or addressing acute medical issues, I am here to support you on your health journey.
-
-                            My ongoing commitment to staying current with medical advancements ensures that my patients receive the latest and most effective treatments. I prioritize building strong doctor-patient relationships based on trust and mutual respect.
-
-                            Thank you for considering me as your healthcare provider. I look forward to partnering with you to achieve and maintain your optimal health.
-                        </p>
-
-                        <p class="my-3 text-2xl font-bold tracking-tight text-gray-900">Education</p>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                            <div class="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
-                                <p class="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
-                            </div>
-
-                            <div class="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
-                                <p class="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
-                            </div>
-                        </div>
-
-                        <p class="my-3 text-2xl font-bold tracking-tight text-gray-900">Experience</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                            <div class="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">General Physician</h5>
-                                <p class="font-normal text-gray-700">Norvic Hospital | 2023-present</p>
                             </div>
                         </div>
                     </div>
 
-                </div>
-                <div
-                    className={`p-4 rounded-lg dark:bg-gray-800 ${activeTab === 'second' ? 'block' : 'hidden'
-                        }`}
-                    id="second"
-                    role="tabpanel"
-                    aria-labelledby="second-tab"
-                >
-                    <div class='w-100% grid grid-cols-2 gap-5'>
 
-                        <figure class="max-w-screen-md mx-auto text-center border rounded-xl p-4">
-                            <svg class="w-10 h-10 mx-auto mb-3 text-gray-400 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 14">
-                                <path d="M6 0H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3H2a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3h-1a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Z" />
-                            </svg>
-                            <blockquote>
-                                <p class="text-2xl italic font-medium text-gray-900 dark:text-white">I want to express my sincere appreciation for the excellent service I received. From start to finish, my experience was positive and exceeded my expectations.
+                    <div className="mb-4 border-b border-gray-200 dark:border-gray-700 ml-12">
+                        <ul
+                            className="flex flex-wrap -mb-px text-sm font-medium text-center"
+                            id="default-tab"
+                            data-tabs-toggle="#default-tab-content"
+                            role="tablist"
+                        >
+                            <li className="me-2" role="presentation">
+                                <button
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'first' ? 'border-blue-500' : ''
+                                        }`}
+                                    id="first-tab"
+                                    onClick={() => handleTabClick('first')}
+                                    role="tab"
+                                    aria-controls="first"
+                                    aria-selected={activeTab === 'first'}
+                                >
+                                    About
+                                </button>
+                            </li>
+                            <li className="me-2" role="presentation">
+                                <button
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'second' ? 'border-blue-500' : ''
+                                        }`}
+                                    id="second-tab"
+                                    onClick={() => handleTabClick('second')}
+                                    role="tab"
+                                    aria-controls="second"
+                                    aria-selected={activeTab === 'second'}
+                                >
+                                    Review
+                                </button>
+                            </li>
+                            <li role="presentation">
+                                <button
+                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'third' ? 'border-blue-500' : ''
+                                        }`}
+                                    id="third-tab"
+                                    onClick={() => handleTabClick('third')}
+                                    role="tab"
+                                    aria-controls="third"
+                                    aria-selected={activeTab === 'third'}
+                                >
+                                    Location
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="default-tab-content">
+                        <div
+                            className={`p-4 rounded-lg bg-gray-50 dark:bg-gray-800 ${activeTab === 'first' ? 'block' : 'hidden'
+                                }`}
+                            id="first"
+                            role="tabpanel"
+                            aria-labelledby="first-tab"
+                        >
+                            <div className="container mx-auto p-6">
+                                <p className="text-lg text-gray-700 leading-7">
+                                    {doctorDetail.bio}
                                 </p>
-                            </blockquote>
-                            <figcaption class="flex items-center justify-center mt-6 space-x-3 rtl:space-x-reverse">
-                                <img class="w-6 h-6 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gouch.png" alt="profile picture" />
-                                <div class="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-500 dark:divide-gray-700">
-                                    <cite class="pe-3 font-medium text-gray-900 dark:text-white">Sangam Bharati</cite>
-                                    <cite class="ps-3 text-sm text-gray-500 dark:text-gray-400">CEO at ZetithZone</cite>
+
+                                <p className="my-3 text-2xl font-bold tracking-tight text-gray-900">Education</p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
+                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
+                                        <p className="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
+                                    </div>
+
+                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
+                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
+                                        <p className="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
+                                    </div>
                                 </div>
-                            </figcaption>
-                        </figure>
 
-
-                        <figure class="max-w-screen-md mx-auto text-center border rounded-xl p-4">
-                            <svg class="w-10 h-10 mx-auto mb-3 text-gray-400 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 14">
-                                <path d="M6 0H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3H2a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3h-1a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Z" />
-                            </svg>
-                            <blockquote>
-                                <p class="text-2xl italic font-medium text-gray-900 dark:text-white">The team's professionalism and attention to detail were remarkable. They were responsive, addressed my concerns promptly, and went above and beyond to ensure my satisfaction.
-                                </p>
-                            </blockquote>
-                            <figcaption class="flex items-center justify-center mt-6 space-x-3 rtl:space-x-reverse">
-                                <img class="w-6 h-6 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gouch.png" alt="profile picture" />
-                                <div class="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-500 dark:divide-gray-700">
-                                    <cite class="pe-3 font-medium text-gray-900 dark:text-white">Sangam Bharati</cite>
-                                    <cite class="ps-3 text-sm text-gray-500 dark:text-gray-400">CEO at ZenithZone</cite>
+                                <p className="my-3 text-2xl font-bold tracking-tight text-gray-900">Experience</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
+                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">General Physician</h5>
+                                        <p className="font-normal text-gray-700">Norvic Hospital | 2023-present</p>
+                                    </div>
                                 </div>
-                            </figcaption>
-                        </figure>
+                            </div>
 
+                        </div>
+                        <div
+                            className={`p-4 rounded-lg ${activeTab === 'second' ? 'block' : 'hidden'
+                                }`}
+                            id="second"
+                            role="tabpanel"
+                            aria-labelledby="second-tab"
+                        >
+                            <div className='w-100% grid grid-cols-2 gap-5'>
 
-                    </div>
-
-                </div>
-                <div
-                    className={`p-4 rounded-lg bg-gray-50 dark:bg-gray-800 ${activeTab === 'third' ? 'block' : 'hidden'
-                        }`}
-                    id="third"
-                    role="tabpanel"
-                    aria-labelledby="third-tab"
-                >
-                    <div class='w-[1200px] mx-auto'>
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3553.9738132950447!2d84.8776681!3d27.0309934!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb188d9b82c8ad%3A0xae31bde410797bf7!2sSwoyambhu%20Mahachaitya!5e0!3m2!1sen!2snp!4v1707903982278!5m2!1sen!2snp" width="1200" height="450" allowFullsSreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-
-                    </div>
-
-                </div>
-            </div>
-
-
-            <div>
-                {/* Backdrop Overlay */}
-                <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isModalOpen ? 'block' : 'hidden'}`} onClick={handleCloseModal}></div>
-
-                {/* Modal */}
-                <div id="modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isModalOpen ? 'block' : 'hidden'}`}>
-
-                    <div class="relative p-4 w-full max-w-md max-h-full">
-
-                        <div class="relative bg-white rounded-lg shadow">
-
-                            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                                <h3 class="text-lg font-semibold text-gray-900">
-                                    Book Doctor
-                                </h3>
-                                <button type="button" onClick={handleCloseModal} class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal">
-                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                <figure className="max-w-screen-md mx-auto text-center border rounded-xl p-4">
+                                    <svg className="w-10 h-10 mx-auto mb-3 text-gray-400 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 14">
+                                        <path d="M6 0H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3H2a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3h-1a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Z" />
                                     </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
+                                    <blockquote>
+                                        <p className="text-2xl italic font-medium text-gray-900 dark:text-white">I want to express my sincere appreciation for the excellent service I received. From start to finish, my experience was positive and exceeded my expectations.
+                                        </p>
+                                    </blockquote>
+                                    <figcaption className="flex items-center justify-center mt-6 space-x-3 rtl:space-x-reverse">
+                                        <img className="w-6 h-6 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gouch.png" alt="profile picture" />
+                                        <div className="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-500 dark:divide-gray-700">
+                                            <cite className="pe-3 font-medium text-gray-900 dark:text-white">Sangam Bharati</cite>
+                                            <cite className="ps-3 text-sm text-gray-500 dark:text-gray-400">CEO at ZetithZone</cite>
+                                        </div>
+                                    </figcaption>
+                                </figure>
+
                             </div>
 
-                            <form method="post" class="p-4 md:p-5" onSubmit={handelSubmit}>
-                                <div class="grid gap-4 mb-4 grid-cols-2">
-                                    <div class="col-span-2">
-                                        <label for="date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
-                                        <input type="date" name="date" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required="" onChange={handelChange} />
+                        </div>
+                        <div
+                            className={`p-4 rounded-lg bg-gray-50 dark:bg-gray-800 ${activeTab === 'third' ? 'block' : 'hidden'
+                                }`}
+                            id="third"
+                            role="tabpanel"
+                            aria-labelledby="third-tab"
+                        >
+                            <div className='w-[1200px] mx-auto'>
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3553.9738132950447!2d84.8776681!3d27.0309934!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb188d9b82c8ad%3A0xae31bde410797bf7!2sSwoyambhu%20Mahachaitya!5e0!3m2!1sen!2snp!4v1707903982278!5m2!1sen!2snp" width="1200" height="450" allowFullsSreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div>
+                        {/* Backdrop Overlay */}
+                        <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isModalOpen ? 'block' : 'hidden'}`} onClick={handleCloseModal}></div>
+
+                        {/* booking Modal */}
+                        <div id="modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isModalOpen ? 'block' : 'hidden'}`}>
+
+                            <div className="relative p-4 w-full max-w-md max-h-full">
+
+                                <div className="relative bg-white rounded-lg shadow">
+
+                                    <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            Book Doctor
+                                        </h3>
+                                        <button type="button" onClick={handleCloseModal} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal">
+                                            <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span className="sr-only">Close modal</span>
+                                        </button>
                                     </div>
+
+                                    <form method="post" className="p-4 md:p-5" onSubmit={handelSubmit}>
+                                        <div className="grid gap-4 mb-4 grid-cols-2">
+                                            <div className="col-span-2">
+                                                <label for="date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
+                                                <input type="date" name="date" id="date" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required="" onChange={handelChange} />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid gap-4 mb-4 grid-cols-2">
+                                            <div className="col-span-2">
+
+                                                <label for="time_at" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Time</label>
+                                                <select id="time_at" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " onChange={handelChange} name="time_at">
+                                                    <option defaultValue={null}>Choose your appropriate time</option>
+                                                    <option value="09:00">09:00 AM</option>
+                                                    <option value="11:00">11:00 AM</option>
+                                                    <option value="13:00">01:00 PM</option>
+                                                    <option value="15:00">03:00 PM</option>
+                                                    <option value="17:00">05:00 PM</option>
+                                                </select>
+
+
+                                            </div>
+                                        </div>
+
+
+                                        <button type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                            <svg className="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path></svg>
+                                            Book
+                                        </button>
+                                    </form>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div class="flex items-center justify-center">
+                    <div role="status">
+                        <svg aria-hidden="true" class="inline w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                        </svg>
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            )
+            }
 
-                                <div class="grid gap-4 mb-4 grid-cols-2">
-                                    <div class="col-span-2">
-
-                                        <label for="time_at" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Time</label>
-                                        <select id="time_at" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " onChange={handelChange} name="time_at">
-                                            <option selected>Choose your appropriate time</option>
-                                            <option value="09:00">09:00 AM</option>
-                                            <option value="11:00">11:00 AM</option>
-                                            <option value="13:00">01:00 PM</option>
-                                            <option value="15:00">03:00 PM</option>
-                                            <option value="17:00">05:00 PM</option>
-                                        </select>
 
 
-                                    </div>
-                                </div>
+            {/* Backdrop Overlay */}
+            <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isPaymentModalOpen ? 'block' : 'hidden'}`}></div>
 
 
-                                <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path></svg>
-                                    Book
-                                </button>
-                            </form>
+            <div id="popup-modal" tabindex="-1" className={`fixed inset-0 z-50 flex items-center justify-center ${isPaymentModalOpen ? 'block' : 'hidden'}`}>
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow">
+                        <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="popup-modal" onClick={handlePaymentModalClose}>
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-green-500 w-12 h-12 dark:text-green-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke-width="2" fill="none" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4" />
+                            </svg>
+
+
+                            <h3 class="mb-5 text-lg font-normal text-gray-500">Thank you for booking. Proceed to payment?</h3>
+                            <button type="button" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" onClick={handlePayment}>
+                                Yes, I'm sure
+
+                            </button>
+
+                            <button type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={cancelPayment}>No, cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
+
 
         </>
     );
