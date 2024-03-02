@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authenticate } from "../utils/auth";
-import {useAuth } from '../context/authContext';
+import { useAuth } from '../context/authContext';
+import { jwtDecode } from 'jwt-decode';
+
 
 
 const Navbar = () => {
+  const { dispatch,state} = useAuth();
+  const {userName,userImg}=state;
+  
   const [login, setLogin] = useState(false);
   const navigate = useNavigate();
 
@@ -14,6 +19,11 @@ const Navbar = () => {
         const isAuthenticated = await authenticate();
         if (isAuthenticated) {
           setLogin(true)
+          const decodedData = jwtDecode(localStorage.getItem("access"));
+          dispatch({
+            type: 'LOGIN',
+            payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg" },
+          });
         }
       } catch (error) {
         console.error('Error in useEffect:', error);
@@ -34,11 +44,14 @@ const Navbar = () => {
 
 
           {login ? (
+            <div className='flex items-center justify-between gap-3'>
+              <p>{`Hi, ${userName}`}</p>
               <Link to="/user-dashboard"><button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button">
                 <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
               </button>
               </Link>
-    
+            </div>
+
           ) : (
             <>
               <button type="button" className="text-white  bg-[#121F49] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2 text-center me-3">

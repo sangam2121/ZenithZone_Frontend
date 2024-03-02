@@ -64,7 +64,7 @@ const Login = () => {
                 const decodedData = jwtDecode(access);
                 dispatch({
                     type: 'LOGIN',
-                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImage: "img.jpg" },
+                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg" },
                 });
 
                 navigate('/user-dashboard', { state: { isLoggedIn: true } })

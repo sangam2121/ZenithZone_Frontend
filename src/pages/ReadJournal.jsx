@@ -1,11 +1,38 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import { useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from "../context/authContext"
+import { authenticate } from '../utils/auth';
 
 const ReadJournal = () => {
+    const navigate = useNavigate();
+    const author = useAuth().state.userId;
     const { journalId } = useParams();
+    const [commentList, setCommentList] = useState();
     const [journal, setJournal] = useState(null);
+    const [comment, setComment] = useState({
+        'post': journalId,
+        'author': author,
+        'content': null,
+    })
+
+    useEffect(() => {
+        fetchJournal();
+        fetchData();
+
+    }, [])
+
+    const fetchData = async () => {
+        try {
+            const isAuthenticated = await authenticate();
+            if (!isAuthenticated) {
+                navigate('/login', { state: { isNotAuauthenticated: true } });
+            }
+        } catch (error) {
+            console.error('Error in useEffect:', error);
+        }
+    };
+
 
     const fetchJournal = async () => {
         try {
@@ -13,7 +40,8 @@ const ReadJournal = () => {
                 method: "get"
             })
             const data = await response.json();
-            console.log(data);
+            console.log(data)
+            setCommentList(data.comments)
             setJournal(data)
 
         } catch (error) {
@@ -21,32 +49,39 @@ const ReadJournal = () => {
         }
     }
 
-    const [comment, setComment] = useState({
-        'post': journalId,
-        'author': null,
-        'content': null,
-    })
+
     const handleChange = (e) => {
         setComment({
+            ...comment,
             'content': e.target.value
         })
     }
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/comments/`, {
-            method: 'post',
-            headers: {
-                'content-type': 'application/json',
-                'bearer': `${localStorage.getItem("access")}`
+        try {
+            e.preventDefault();
+            console.log(comment);
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/comments/`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("access")}`
+                },
+                body: JSON.stringify(comment)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data)
             }
-        })
-        if (response.ok) {
-            console.log(await response.json());
+            else {
+                console.log(data)
+            }
+
+        } catch (error) {
+            console.log("Error", error)
         }
+
     }
-    useEffect(() => {
-        fetchJournal();
-    }, [])
     return (
         <>
             <Navbar></Navbar>
@@ -72,35 +107,24 @@ const ReadJournal = () => {
                     <div class='my-3 font-bold text-2xl'> Comments</div>
                     <hr class='mb-5'></hr>
 
-
-                    <div class="flex items-start gap-2.5 mb-3">
-                        <img class="w-8 h-8 rounded-full" src="/images/avatar.jpg" alt="Jese image" />
-                        <div class="flex flex-col gap-1 w-full max-w-[500px]">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Sangam Bharati</span>
-                                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">11:46</span>
-                            </div>
-                            <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl">
-                                <p class="text-sm font-normal text-gray-900 "> That's awesome. I think our users will really appreciate the improvements.</p>
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    <div class="flex items-start gap-2.5 mb-3">
-                        <img class="w-8 h-8 rounded-full" src="/images/avatar.jpg" alt="Jese image" />
-                        <div class="flex flex-col gap-1 w-full max-w-[500px]">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Sangam Bharati</span>
-                                <span class="text-sm font-normal text-gray-500 ">11:46</span>
-                            </div>
-                            <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl ">
-                                <p class="text-sm font-normal text-gray-900 dark:text-white"> That's awesome. I think our users will really appreciate the improvements.</p>
-                            </div>
-                        </div>
-                    </div>
-
+                    {
+                        commentList.map((comment) => {
+                            return (
+                                <div class="flex items-start gap-2.5 mb-3">
+                                    <img class="w-8 h-8 rounded-full" src={`${import.meta.env.VITE_AUTH_BASE_URL}${comment.author.image}`} alt="image" />
+                                    <div class="flex flex-col gap-1 w-full max-w-[500px]">
+                                        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{`${comment.author.first_name} ${comment.author.last_name}`}</span>
+                                            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{`${new Date(comment.updated_at).toLocaleDateString()} (${new Date(comment.updated_at).toLocaleTimeString()}) `}</span>
+                                        </div>
+                                        <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl">
+                                            <p class="text-sm font-normal text-gray-900 ">{comment.content}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })
+                    }
 
                     <form method='post' onSubmit={handleSubmit}>
                         <div class="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 ">
