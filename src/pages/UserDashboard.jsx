@@ -1,25 +1,52 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { authenticate } from '../utils/auth';
+import { useNavigate,useLocation} from 'react-router-dom';
+import {toast} from "react-toastify"
 
 import Navbar from '../components/Navbar';
 import JournalWriteCard from '../components/JournalWriteCard';
 import LibraryCard from '../components/LibraryCard';
 import ProfileCard from "../components/ProfileCard"
-
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
 const UserDashboard = () => {
+    const navigate=useNavigate();
+    const location=useLocation();
+    const isLoggedIn = location.state?.isLoggedIn;
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const isAuthenticated = await authenticate();
+                if (!isAuthenticated) {
+                    navigate('/login', { state: { isNotAuauthenticated: true } });
+                } 
+            } catch (error) {
+                console.error('Error in useEffect:', error);
+            }
+        };
+
+        fetchData();
+        if(isLoggedIn){
+            toast.success('Login successful!', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+                onClose:()=>{
+                    isLoggedIn:false
+                }
+            });
+        }
+        
+    }, [navigate]);
+
     const [activeItem, setActiveItem] = useState('profile');
     const handleMenuItemClick = (target) => {
         setActiveItem(target);
     };
 
     return (
-
         <>
-            <ToastContainer />
             <Navbar></Navbar>
             <div class="md:flex w-[90%] mx-auto py-5">
                 <ul class="flex-column space-y space-y-4 text-sm font-medium text-gray-500  md:me-4 mb-4 md:mb-0 ">

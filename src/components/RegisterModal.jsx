@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterModal = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const [form, setform] = useState({});
 
     const handleChange = (e) => {
@@ -13,11 +13,11 @@ const RegisterModal = () => {
             [e.target.name]: e.target.value,
         });
     };
-   
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/auth/register/`, {
                 method: 'POST',
@@ -26,27 +26,33 @@ const RegisterModal = () => {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
-                
-                toast.success('Registration successful!', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 3000,
-                });
-                navigate('/login')
-                
+
+                navigate('/login', { state: { registrationSuccess: true } })
+
             } else {
                 // Extract and display error messages
-                Object.keys(data).forEach((key) => {
-                    data[key].forEach((error) => {
-                        toast.error(`${key}: ${error}`, {
+
+                Object.values(data).forEach((value) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((error) => {
+                            toast.error(error, {
+                                position: toast.POSITION.TOP_RIGHT,
+                                autoClose: 3000,
+                            });
+                        });
+                    } else {
+                        toast.error(value, {
                             position: toast.POSITION.TOP_RIGHT,
                             autoClose: 3000,
                         });
-                    });
+                    }
                 });
+
+
             }
         } catch (error) {
             console.log(error);
@@ -55,45 +61,23 @@ const RegisterModal = () => {
             }
         }
     };
-    
+
     return (
         <>
-        
-        <ToastContainer/>
+        <Navbar/>
             <div
                 id="authentication-modal"
-                className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center"
+                className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-80"
             >
-                <div className="relative p-4 w-full max-w-[75%] max-h-full mx-auto my-auto">
-                    <div className="relative bg-white rounded-lg shadow">
-                        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <div className="relative p-4 w-[75%] mx-auto my-auto mt-12">
+                    <div className="relative bg-white rounded-lg border">
+                        <div className="flex items-center justify-center p-4 md:p-5  rounded-t">
+                            <h3 className="text-xl font-bold text-gray-900 text-center">
                                 Register At ZenithZone
                             </h3>
-                            <button
-                                type="button"
-                                className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                data-modal-hide="authentication-modal"
-                            >
-                                <svg
-                                    className="w-3 h-3"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                    />
-                                </svg>
-                                <span className="sr-only">Close modal</span>
-                            </button>
+                           
                         </div>
-                        <div className="bg-white w-full h-full rounded-2xl flex justify-between shadow-lg">
+                        <div className="bg-white w-full h-full rounded-2xl flex justify-between ">
                             <div className="w-1/2  rounded overflow-hidden p-3 flex items-center justify-center">
                                 <img
                                     src="/images/login-img.png"

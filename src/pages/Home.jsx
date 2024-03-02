@@ -12,22 +12,22 @@ import { useEffect } from 'react'
 const Home = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const isAuthenticated = await authenticate();
-        if (!isAuthenticated) {
-          navigate('/login');
-        } else {
-          console.log('User is authenticated.');
-        }
-      } catch (error) {
-        console.error('Error in useEffect:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const isAuthenticated = await authenticate();
+  //       if (!isAuthenticated) {
+  //         navigate('/login',{state:{isNotAuauthenticated:true}});
+  //       } else {
+  //         console.log('User is authenticated.');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error in useEffect:', error);
+  //     }
+  //   };
 
-    fetchData();
-  }, [navigate]);
+  //   fetchData();
+  // }, [navigate]);
 
   return (
     <>

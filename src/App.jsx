@@ -15,12 +15,15 @@ import DoctorDashboard from './pages/DoctorDashboard'
 import ReadJournal from './pages/ReadJournal'
 import DoctorDetails from './components/DoctorDetails'
 import RegisterModal from './components/RegisterModal'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Home/>}></Route>
         <Route path="/journal" element={<Journal/>}></Route>

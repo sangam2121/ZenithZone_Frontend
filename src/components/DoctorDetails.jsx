@@ -13,8 +13,7 @@ const MyTabs = () => {
     const [activeTab, setActiveTab] = useState('first');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [appointment, setAppointment] = useState({
-        'doctor': '1',
-        'patient': '5122bc06-13a6-490d-8bf9-078fe236cb82',
+        'doctor': 1,
     });
 
     const handleTabClick = (tabId) => {
@@ -55,14 +54,14 @@ const MyTabs = () => {
             if (response.ok) {
                
                 console.log("Successful", data);
-                var appointmentId = data.id;
-                // console.log(appointmentId);
+                var paymentId = data.payment;
+                console.log(paymentId);
                 handleCloseModal()
                 toast.success('Thank you for booking. Pay for continue..', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
-                // handlePayment(appointmentId);
+                handlePayment(paymentId);
             }
             else {
                 Object.values(data).forEach((value) => {
@@ -87,12 +86,12 @@ const MyTabs = () => {
         }
     }
 
-    const handlePayment = async (appointmentId) => {
+    const handlePayment = async (paymentId) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/pay/`, {
                 method: 'post',
                 body: JSON.stringify({
-                    "payment_id": `${appointmentId}`,
+                    "payment_id": `${paymentId}`,
                     "redirect_url": "http://localhost:5173/doctor-detail"
                 }),
 
@@ -121,7 +120,6 @@ const MyTabs = () => {
     return (
         <>
             <Navbar />
-            <ToastContainer />
             <div className="bg-white rounded-lg p-4 w-[98%]  mx-auto border-2">
                 <div className="flex items-center gap-4 pt-0 pb-8">
                     <img

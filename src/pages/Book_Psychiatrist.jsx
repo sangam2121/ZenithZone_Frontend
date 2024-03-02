@@ -13,7 +13,7 @@ const Book_Psychiatrist = () => {
         const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/lists`, {
           method: 'GET'
         })
-        const data = await response.json()
+        const data = await response.json();
         setDoctorList(data.results)
       //  console.log(data.results)
       }
