@@ -1,38 +1,37 @@
 import React from 'react'
 import { useState } from 'react'
+import {toast} from 'react-toastify'
 const LibraryCard = () => {
     const [library, setLibrary] = useState({
         title: '',
         content: '',
         is_anonymous: false,
-        post_type: null
     });
 
     const handleChange = (e) => {
-        if (e.target.name === 'thumbnail') {
-            setJournal({
-                ...journal,
-                [e.target.name]: e.target.files[0],
+        if (e.target.name === 'file_upload') {
+            setLibrary({
+                ...library,
+                "file_upload": e.target.files[0],
             });
         } else {
-            setJournal({
-                ...journal,
+            setLibrary({
+                ...library,
                 [e.target.name]: e.target.value,
             });
         }
     };
 
     const handleSubmit = async (e) => {
+        console.log(library);
         e.preventDefault();
-        const apiUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/posts/`;
+        const apiUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/posts/library/`;
 
         const formData = new FormData();
-        formData.append('title', journal.title);
-        formData.append('content', journal.content);
-        formData.append('thumbnail', journal.thumbnail);
-        formData.append('is_anonymous', journal.is_anonymous);
-        formData.append('post_type', journal.post_type);
-
+        formData.append('title', library.title);
+        formData.append('content', library.content);
+        formData.append('file_upload',library.file_upload)
+        formData.append('is_anonymous', library.is_anonymous);
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -44,7 +43,7 @@ const LibraryCard = () => {
             const data = await response.json();
 
             if (response.ok) {
-                toast.success('Journal posted successfully!', {
+                toast.success('Library posted successfully!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
@@ -68,7 +67,11 @@ const LibraryCard = () => {
                 });
             }
         } catch (error) {
-            console.error('Error occurred while submitting journal:', error);
+            console.error('Error occurred while submitting Library:', error);
+            toast.error('An error occurred. Please try again later.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+            });
         }
     };
 
@@ -79,7 +82,7 @@ const LibraryCard = () => {
             <p class="text-gray-900 mb-8">Enhance your Zenithzone experience! Did you know you can contribute more than just words? Share your journey visually by adding images, attach helpful PDFs, or even upload insightful videos. Your multimedia contributions can make the Zenithzone community more engaging and dynamic. Whether it's a visual representation of your success or sharing helpful resources, the possibilities are endless. Start adding depth to your Zenithzone interactions by incorporating images, PDFs, and videos today!</p>
 
 
-            <form>
+            <form method='post' encType='multipart/form-data' onSubmit={handleSubmit}>
             <div class="mb-5">
                     <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Title</label>
                     <input type="text" id="title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Title" required name="title" onChange={handleChange} />
@@ -87,20 +90,7 @@ const LibraryCard = () => {
 
                 <div class="mb-5">
                     <label for="content" class="block mb-2 text-sm font-medium text-gray-900 ">Description</label>
-                    <textarea id="content" name="content" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your content here..." onChange={handleChange}></textarea>
-                </div>
-
-                <div class="mb-5">
-                    <label for="post-type" class="block mb-2 text-sm font-medium text-gray-900">Type</label>
-                    <select id="post-type" class="bg-gray-50 border border-gray-300 text-gray-90 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        name="post_type" onChange={handleChange}>
-                        <option selected >Select post types</option>
-                        <option value="DAILY_UPDATES">Daily Updates</option>
-                        <option value="INSPIRATIONAL">Inspirational</option>
-                        <option value="EXPERT_ADVICE">Expert Advice</option>
-                        <option value="NEWS">News</option>
-                        <option value="OTHERS">Others</option>
-                    </select>
+                    <textarea id="content" name="content" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your content here... (optional)" onChange={handleChange}></textarea>
                 </div>
 
 
@@ -128,7 +118,7 @@ const LibraryCard = () => {
                             <p class="mb-2 text-sm text-gray-500 "><span class="font-semibold">Click to upload</span> or drag and drop</p>
                             <p class="text-xs text-gray-500 ">Images, PDF, Videos</p>
                         </div>
-                        <input id="dropzone-file" type="file" class="hidden" />
+                        <input id="dropzone-file" type="file" class="hidden" name="file_upload" onChange={handleChange} />
                     </label>
                 </div>
                 
