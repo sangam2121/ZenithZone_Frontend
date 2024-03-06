@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import { FaStar } from "react-icons/fa6";
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { authenticate } from '../utils/auth';
 
 const MyTabs = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     useEffect(() => {
         fetchDoctorDetail();
 
@@ -17,7 +17,7 @@ const MyTabs = () => {
     const [activeTab, setActiveTab] = useState('first');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-    const [paymentId,setPaymentId]=useState(null);
+    const [paymentId, setPaymentId] = useState(null);
 
     const [appointment, setAppointment] = useState({
         'doctor': null
@@ -47,8 +47,8 @@ const MyTabs = () => {
             const isAuthenticated = await authenticate();
             if (!isAuthenticated) {
                 navigate('/login', { state: { isNotAuauthenticated: true } });
-            } 
-            else{
+            }
+            else {
                 handleBookAppointmentClick();
             }
         } catch (error) {
@@ -146,7 +146,7 @@ const MyTabs = () => {
 
             if (response.ok) {
                 // console.log("Successful", data);
-                const redirect_url=data?.payment_url;
+                const redirect_url = data?.payment_url;
                 handlePaymentModalClose();
                 window.open(redirect_url, '_blank').focus();
             }
@@ -175,7 +175,7 @@ const MyTabs = () => {
 
     }
 
-    const cancelPayment=()=>{
+    const cancelPayment = () => {
 
     }
 

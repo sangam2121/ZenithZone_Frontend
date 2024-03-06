@@ -62,12 +62,18 @@ const Login = () => {
                 localStorage.setItem("refresh", refresh);
                 localStorage.setItem("access", access);
                 const decodedData = jwtDecode(access);
+                console.log("decoded data",decodedData);
                 dispatch({
                     type: 'LOGIN',
                     payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg" },
                 });
 
-                navigate('/user-dashboard', { state: { isLoggedIn: true } })
+                if(decodedData.user_type ==="patient"){
+                    navigate('/user-dashboard', { state: { isLoggedIn: true } })
+                }else{
+                    navigate('/doctor-dashboard', { state: { isLoggedIn: true } })
+                }            
+                
             } else {
                 Object.values(data).forEach((value) => {
                     if (Array.isArray(value)) {

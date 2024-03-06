@@ -14,7 +14,7 @@ const ReadJournal = () => {
         'post': journalId,
         'author': author,
         'content': null,
-    })
+    }) 
 
     useEffect(() => {
         fetchJournal();
