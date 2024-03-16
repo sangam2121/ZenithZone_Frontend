@@ -3,7 +3,8 @@ import { createContext, useContext, useReducer } from "react";
 const initialState = {
     userId: null,
     userName: null,
-    userImg: null
+    userImg: null,
+    userType:null,
 }
 
 const AuthContext = createContext();
@@ -15,6 +16,7 @@ const authReducer = (state, action) => {
             userId: action.payload.userId,
             userName: action.payload.userName,
             userImg: action.payload.userImg,
+            userType:action.payload.userType
         }
     }
     return state;

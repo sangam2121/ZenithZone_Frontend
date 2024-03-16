@@ -65,7 +65,7 @@ const Login = () => {
                 console.log("decoded data",decodedData);
                 dispatch({
                     type: 'LOGIN',
-                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg" },
+                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg",userType:decodedData.user_type },
                 });
 
                 if(decodedData.user_type ==="patient"){

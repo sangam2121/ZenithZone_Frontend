@@ -8,7 +8,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const Navbar = () => {
   const { dispatch,state} = useAuth();
-  const {userName,userImg}=state;
+  const {userName,userImg,userType}=state;
   
   const [login, setLogin] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const Navbar = () => {
           const decodedData = jwtDecode(localStorage.getItem("access"));
           dispatch({
             type: 'LOGIN',
-            payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg" },
+            payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg",userType:decodedData.user_type},
           });
         }
       } catch (error) {
@@ -46,7 +46,7 @@ const Navbar = () => {
           {login ? (
             <div className='flex items-center justify-between gap-3'>
               <p>{`Hi, ${userName}`}</p>
-              <Link to="/user-dashboard"><button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button">
+              <Link to={userType === "doctor" ? "/doctor-dashboard" : "/user-dashboard"}><button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button">
                 <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
               </button>
               </Link>

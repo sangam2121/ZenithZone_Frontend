@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/authContext';
 
 
-const DoctorProfileCard = () => {
+const DoctorProfileCard = () => { 
     const { state } = useAuth();
     const [profileData, setProfileData] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);

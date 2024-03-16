@@ -8,7 +8,7 @@ const Journal = () => {
 
   const fetchJournal = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/`, {
+      const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/lists`, {
         method: 'GET',
       });
 
