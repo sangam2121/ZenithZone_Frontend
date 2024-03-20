@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from "../context/authContext"
 import { authenticate } from '../utils/auth';
 
 const ReadJournal = () => {
     const navigate = useNavigate();
-    const author = useAuth().state.userId;
+    const author = localStorage.getItem("userId");
     const { journalId } = useParams();
     const [commentList, setCommentList] = useState();
     const [journal, setJournal] = useState(null);

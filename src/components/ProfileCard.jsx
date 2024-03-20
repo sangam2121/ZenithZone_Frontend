@@ -1,9 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { useAuth } from '../context/authContext';
 
 const ProfileCard = () => {
-    const { state } = useAuth();
     const [profileData, setProfileData] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updateProfile, setUpdateProfile] = useState({
@@ -32,7 +30,7 @@ const ProfileCard = () => {
 
     const fetchProfileData = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/patient/update/${state.userId}`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/patient/update/${localStorage.getItem("userId")}`, {
                 method: "get",
                 headers: {
                     'Content-type': 'application/json',

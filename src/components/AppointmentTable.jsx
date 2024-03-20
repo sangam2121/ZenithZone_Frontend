@@ -6,7 +6,7 @@ const AppointmentTable = () => {
 
     const fetchAppointment = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/lists?doctor_id=9aa51806-5680-4ff8-900a-a9a8eef985dc`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/lists?doctor_id=${localStorage.getItem("userId")}`, {
                 method: "get",
             });
             const data = await response.json();

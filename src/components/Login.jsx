@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react'
 import Navbar from './Navbar';
-import { useAuth } from '../context/authContext';
 import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
@@ -12,8 +11,6 @@ const Login = () => {
     const navigate = useNavigate();
     const registrationSuccess = location.state?.registrationSuccess;
     const isNotAuauthenticated = location.state?.isNotAuauthenticated;
-    const { dispatch } = useAuth();
-
 
     useEffect(() => {
         if (registrationSuccess) {
@@ -63,10 +60,9 @@ const Login = () => {
                 localStorage.setItem("access", access);
                 const decodedData = jwtDecode(access);
                 console.log("decoded data",decodedData);
-                dispatch({
-                    type: 'LOGIN',
-                    payload: { userId: decodedData.user_id, userName: decodedData.user_name, userImg: "img.jpg",userType:decodedData.user_type },
-                });
+                localStorage.setItem("userId",decodedData.user_id);
+                localStorage.setItem("userName",decodedData.user_name);
+                localStorage.setItem("userType",decodedData.user_type);
 
                 if(decodedData.user_type ==="patient"){
                     navigate('/user-dashboard', { state: { isLoggedIn: true } })

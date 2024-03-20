@@ -1,9 +1,11 @@
+import {jwtDecode} from "jwt-decode";
+
 const authenticate = async () => {
   try {
     const accessToken = localStorage.getItem('access');
 
     if (!accessToken) {
-      // console.error('No access token available');
+      localStorage.clear(); // Clear entire local storage if access token is not available
       return false; // No access token available
     }
 
@@ -19,7 +21,7 @@ const authenticate = async () => {
 
       // Check if the refresh token is present
       if (!refreshToken) {
-        // console.error('No refresh token available');
+        localStorage.clear();  // Clear entire local storage if refresh token is not available
         return false;
       }
 
@@ -33,16 +35,35 @@ const authenticate = async () => {
 
       if (refreshResponse.ok) {
         const { access } = await refreshResponse.json();
-        // console.log('New access token:', access);
         localStorage.setItem('access', access);
-        // console.log('Access token refreshed successfully');
+
+        // Decode JWT and store user information
+        const decodedData = jwtDecode(access);
+
+        if (decodedData) {
+          // console.log("decoded data", decodedData);
+          localStorage.setItem("userId", decodedData.user_id);
+          localStorage.setItem("userName", decodedData.user_name);
+          localStorage.setItem("userType", decodedData.user_type)
+        }
+
         return true;
       }
 
       if (refreshResponse.status === 401) {
-        // console.error('Failed to refresh access token: Refresh token is invalid');
+        localStorage.clear();  // Clear entire local storage if refresh token is invalid
         return false;
       }
+    }
+
+    // Decode JWT and store user information (in case access token is still valid)
+    const decodedData = jwtDecode(accessToken);
+
+    if (decodedData) {
+      // console.log("decoded data", decodedData);
+      localStorage.setItem("userId", decodedData.user_id);
+      localStorage.setItem("userName", decodedData.user_name);
+      localStorage.setItem("userType", decodedData.user_type)
     }
 
     return true;

@@ -1,9 +1,23 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
+import { authenticate } from '../utils/auth';
+import { useNavigate } from 'react-router-dom';
 
 const MultiStepForm = () => {
+  const navigate=useNavigate();
   const [step, setStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(true);
+
+  const checkAuth = async () => {
+    try {
+      const isAuthenticated = await authenticate();
+      if (!isAuthenticated) {
+        navigate('/login', { state: { isNotAuauthenticated: true } });
+      }
+    } catch (error) {
+      console.error('Error in useEffect:', error);
+    }
+  };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -70,7 +84,7 @@ const MultiStepForm = () => {
       [e.target.name]: e.target.value
     })
 
-    // console.log(education)
+    console.log(education)
   }
 
   const handleExperienceChange = (e) => {
@@ -84,39 +98,66 @@ const MultiStepForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const profileData = new FormData();
-      profileData.append('first_name', profile.first_name);
-      profileData.append('last_name', profile.last_name);
-      profileData.append('email', profile.email);
-      profileData.append('phone', profile.phone);
-      profileData.append('address', profile.address);
-      profileData.append('bio', profile.bio);
-      profileData.append('image', profile.image);
-      profileData.append('speciality', profile.speciality);
-  
-      const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/0590cf54-09e5-441c-a22b-0caec21d6b75/`, {
-        method: 'put',
-        body: profileData,
-        headers:{
-          'Authorization': `Bearer ${localStorage.getItem("access")}`
+        const profileData = new FormData();
+        const educationData = new FormData();
+        educationData.append('level', education.level);
+        educationData.append('major', education.major_subject);
+        educationData.append('start_date', education.education_start_date);
+        educationData.append('end_date', education.education_end_date);
+        educationData.append('school', education.school);
+
+        const educationResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/education/`, {
+            method: 'POST',
+            body: educationData,
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("access")}`
+            }
+        });
+        if (!educationResponse.ok) {
+            throw new Error('Failed to create education record');
         }
-      });
-      const data = await response.json();
-  
-      if (response.ok) {
-        console.log(data);
-      } else {
-        console.log(data.error)
-        throw new Error(data.message || 'Failed to update profile');
-      }
+        else{
+          console.log( await educationResponse.json())
+        }
+
+        const userData = {
+            first_name: profile.first_name,
+            last_name: profile.last_name
+        };
+        Object.entries(userData).forEach(([key, value]) => {
+            profileData.append(`user.${key}`, value);
+        });
+        profileData.append('user', JSON.stringify(userData));
+        profileData.append('email', profile.email);
+        profileData.append('phone', profile.phone);
+        profileData.append('address', profile.address);
+        profileData.append('bio', profile.bio);
+        profileData.append('image', profile.image);
+        profileData.append('speciality', profile.speciality);
+
+        const profileResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${localStorage.getItem("userId")}/`, {
+            method: 'PUT', // Assuming this is a PUT request for updating the profile
+            body: profileData,
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("access")}`
+            }
+        });
+        const responseData = await profileResponse.json();
+
+        if (profileResponse.ok) {
+            console.log(responseData);
+        } else {
+            throw new Error(responseData.message || 'Failed to update profile');
+        }
     } catch (error) {
-      console.error('Error:', error.message);
+        console.error('Error:', error.message);
     }
-  };
-  
+};
+
+
   const fetchData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/0590cf54-09e5-441c-a22b-0caec21d6b75/`);
+      const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${localStorage.getItem("userId")}/`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -138,8 +179,9 @@ const MultiStepForm = () => {
   }
 
   useEffect(() => {
+    checkAuth();
     fetchData();
-  }, [])
+  }, [navigate])
 
   return (
     <>

@@ -27,7 +27,7 @@ const JournalWriteCard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const apiUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/posts/`;
+        const apiUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/posts/lists/`;
 
         const formData = new FormData();
         formData.append('title', journal.title);

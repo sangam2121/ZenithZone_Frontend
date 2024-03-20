@@ -1,10 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { useAuth } from '../context/authContext';
-
 
 const DoctorProfileCard = () => { 
-    const { state } = useAuth();
     const [profileData, setProfileData] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updateProfile, setUpdateProfile] = useState({
@@ -34,7 +31,7 @@ const DoctorProfileCard = () => {
 
     const fetchProfileData = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${state.userId}`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${localStorage.getItem("userId")}`, {
                 method: "get",
                 headers: {
                     'Content-type': 'application/json',
