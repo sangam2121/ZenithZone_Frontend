@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 
-const DoctorProfileCard = () => { 
+const DoctorProfileCard = () => {
     const [profileData, setProfileData] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updateProfile, setUpdateProfile] = useState({
@@ -10,7 +10,7 @@ const DoctorProfileCard = () => {
         last_name: "",
         phone: "",
         address: "",
-        
+
     });
 
 
@@ -41,6 +41,7 @@ const DoctorProfileCard = () => {
 
             const data = await response.json();
             if (response.ok) {
+                console.log(data)
                 setProfileData(data);
                 setUpdateProfile(data.user)
             } else {
@@ -50,7 +51,7 @@ const DoctorProfileCard = () => {
         } catch (error) {
             console.log("Error !!", error);
         }
-        
+
     };
 
     useEffect(() => {
@@ -60,7 +61,7 @@ const DoctorProfileCard = () => {
 
     return (
         <>
-            {profileData && profileData.user? (
+            {profileData && profileData.user ? (
                 <div className="container mx-auto">
                     <div className="md:flex no-wrap md:-mx-2 ">
                         {/* Left Side */}
@@ -159,22 +160,15 @@ const DoctorProfileCard = () => {
                                             <span className="tracking-wide">Experience</span>
                                         </div>
                                         <ul className="list-inside space-y-2">
-                                            <li>
-                                                <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
-                                            <li>
-                                                <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
-                                            <li>
-                                                <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
-                                            <li>
-                                                <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
+                                        {profileData.experience.map((experienceItem) => {
+                                                return (<>
+                                                    <li>
+                                                        <div className="text-teal-600">{experienceItem.title.charAt(0).toUpperCase() + experienceItem.title.slice(1)} at    {experienceItem.hospital.charAt(0).toUpperCase() + experienceItem.hospital.slice(1)}</div>
+                                                        <div className="text-gray-500 text-xs">{`${experienceItem.start_date} - ${experienceItem.end_date}`}</div>
+                                                    </li>
+                                                </>)
+                                            })
+                                            }
                                         </ul>
                                     </div>
                                     <div>
@@ -192,14 +186,15 @@ const DoctorProfileCard = () => {
                                             <span className="tracking-wide">Education</span>
                                         </div>
                                         <ul className="list-inside space-y-2">
-                                            <li>
-                                                <div className="text-teal-600">Masters Degree in Oxford</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
-                                            <li>
-                                                <div className="text-teal-600">Bachelors Degreen in LPU</div>
-                                                <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                            </li>
+                                            {profileData.education.map((educationItem) => {
+                                                return (<>
+                                                    <li>
+                                                        <div className="text-teal-600">{educationItem.level.charAt(0).toUpperCase() + educationItem.level.slice(1)} Degree in {educationItem.school.charAt(0).toUpperCase() + educationItem.school.slice(1)}</div>
+                                                        <div className="text-gray-500 text-xs">{`${educationItem.start_date} - ${educationItem.end_date}`}</div>
+                                                    </li>
+                                                </>)
+                                            })
+                                            }
                                         </ul>
                                     </div>
                                 </div>

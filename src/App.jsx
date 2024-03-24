@@ -38,6 +38,8 @@ const App = () => {
         <Route path='/doctor-detail/:doctorUserId' element={<DoctorDetails/>}></Route>
         <Route path='/read-journal/' element={<ReadJournal/>}></Route>
         <Route path='/read-journal/:journalId' element={<ReadJournal/>}></Route>
+       
+
         <Route path="*" element={<Error/>}></Route>
       </Routes>
     </BrowserRouter>

@@ -30,9 +30,18 @@ const RegisterModal = () => {
             const data = await response.json();
 
             if (response.ok) {
-
-                navigate('/login', { state: { registrationSuccess: true } })
-
+                if(data.user.user_type==="doctor"){
+                    navigate('/doctor-profile-setup', { state: { 
+                        doctorCreated: true,
+                        details:{
+                        email:form.email,
+                        password:form.password
+                    } } })
+                }
+                else{
+                    navigate('/login', { state: { registrationSuccess: true } })
+                }
+                
             } else {
                 // Extract and display error messages
 
