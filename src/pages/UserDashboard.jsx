@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 import JournalWriteCard from '../components/JournalWriteCard';
 import ProfileCard from "../components/ProfileCard"
 import Logout from "../components/Logout"
+import ReviewWrite from '../components/ReviewWrite';
 
 
 
@@ -141,7 +142,7 @@ const UserDashboard = () => {
 
                     {activeItem === 'appointment' && (
                         <div>
-
+                            <ReviewWrite/>
                         </div>
                     )}
 

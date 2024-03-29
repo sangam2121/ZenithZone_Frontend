@@ -61,16 +61,16 @@ const MultiStepForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
-  const checkAuth = async () => {
-    try {
-      const isAuthenticated = await authenticate();
-      if (!isAuthenticated) {
-        navigate('/login', { state: { isNotAuauthenticated: true } });
-      }
-    } catch (error) {
-      console.error('Error in useEffect:', error);
-    }
-  };
+  // const checkAuth = async () => {
+  //   try {
+  //     const isAuthenticated = await authenticate();
+  //     if (!isAuthenticated) {
+  //       navigate('/login', { state: { isNotAuauthenticated: true } });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error in useEffect:', error);
+  //   }
+  // };
 
   const nextStep = () => {
     setStep((prevStep) => prevStep + 1);
@@ -105,14 +105,16 @@ const MultiStepForm = () => {
     experience_start_date: "",
     experience_end_date: ""
   });
-  const [clinic, setClinic] = useState({});
+  const [clinic, setClinic] = useState({
+    appointment_fee:""
+  });
 
   const handleClinicChange = (e) => {
     setClinic({
       ...clinic,
       [e.target.name]: e.target.value
     })
-    // console.log(clinic)
+    console.log(clinic)
   }
 
   const handleProfileChange = (e) => {
@@ -122,6 +124,7 @@ const MultiStepForm = () => {
         ...profile,
         'image': e.target.files[0]
       })
+      
     }
     else {
       setProfile({
@@ -129,6 +132,7 @@ const MultiStepForm = () => {
         [e.target.name]: e.target.value
       })
     }
+    console.log(profile)
   }
 
   const handleEducationChange = (e) => {
@@ -156,19 +160,48 @@ const MultiStepForm = () => {
       const experienceData = new FormData();
       const errors = [];
 
+      // Add check for education data
+      if (education.level && education.major_subject && education.education_start_date && education.education_end_date && education.school) {
+        educationData.append('level', education.level);
+        educationData.append('major', education.major_subject);
+        educationData.append('start_date', education.education_start_date);
+        educationData.append('end_date', education.education_end_date);
+        educationData.append('school', education.school);
 
-      experienceData.append('hospital', experience.hospital);
-      experienceData.append('title', experience.title);
-      experienceData.append('start_date', experience.experience_start_date);
-      experienceData.append('end_date', experience.experience_end_date);
+        // Send education data
+        const educationResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/education/`, {
+          method: 'POST',
+          body: educationData,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem("access")}`
+          }
+        });
+        if (!educationResponse.ok) {
+          errors.push('Failed to create education record');
+        }
+      }
 
-      educationData.append('level', education.level);
-      educationData.append('major', education.major_subject);
-      educationData.append('start_date', education.education_start_date);
-      educationData.append('end_date', education.education_end_date);
-      educationData.append('school', education.school);
+      // Add check for experience data
+      if (experience.hospital && experience.title && experience.experience_start_date && experience.experience_end_date) {
+        experienceData.append('hospital', experience.hospital);
+        experienceData.append('title', experience.title);
+        experienceData.append('start_date', experience.experience_start_date);
+        experienceData.append('end_date', experience.experience_end_date);
 
+        // Send experience data
+        const experienceResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/experience/`, {
+          method: 'POST',
+          body: experienceData,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem("access")}`
+          }
+        });
+        if (!experienceResponse.ok) {
+          errors.push('Failed to create experience record');
+        }
+      }
 
+      // Send profile data
       profileData.append('first_name', profile.first_name);
       profileData.append('last_name', profile.last_name);
       profileData.append('email', profile.email);
@@ -177,32 +210,8 @@ const MultiStepForm = () => {
       profileData.append('bio', profile.bio);
       profileData.append('image', profile.image);
       profileData.append('speciality', profile.speciality);
+      profileData.append('appointment_fee',clinic.appointment_fee)
 
-      // Send education data
-      const educationResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/education/`, {
-        method: 'POST',
-        body: educationData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem("access")}`
-        }
-      });
-      if (!educationResponse.ok) {
-        errors.push('Failed to create education record');
-      }
-
-      // Send experience data
-      const experienceResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/experience/`, {
-        method: 'POST',
-        body: experienceData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem("access")}`
-        }
-      });
-      if (!experienceResponse.ok) {
-        errors.push('Failed to create experience record');
-      }
-
-      // Send profile data
       const profileResponse = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${localStorage.getItem("userId")}/`, {
         method: 'PUT',
         body: profileData,
@@ -221,7 +230,7 @@ const MultiStepForm = () => {
           toast.error(error);
         });
       } else {
-        toast.success('Profile Upadated Successful', {
+        toast.success('Profile Updated Successfully', {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
         });
@@ -231,6 +240,7 @@ const MultiStepForm = () => {
       console.error('Error:', error.message);
     }
   }
+
 
   const fetchData = async () => {
     try {
@@ -257,9 +267,9 @@ const MultiStepForm = () => {
 
   useEffect(() => {
     handleAutoLogin();
-    checkAuth();
+    // checkAuth();
     fetchData();
-  }, [navigate])
+  }, [])
 
   return (
     <>
@@ -273,17 +283,17 @@ const MultiStepForm = () => {
         </div>
 
         {
-          doctorCreated?(<div class="flex items-center p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-          <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
-          <span class="sr-only">Info</span>
-          <div>
-            <span class="font-medium">Warning!</span>Update your profile otherwise you can't recieve appointment request
-          </div>
-        </div>):null
+          doctorCreated ? (<div class="flex items-center p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Warning!</span>Update your profile otherwise you can't recieve appointment request
+            </div>
+          </div>) : null
         }
-        
+
 
         <div className="p-4 md:p-5">
           <form method='post' encType='multipart/form-data' onSubmit={handleSubmit}>
@@ -492,7 +502,7 @@ const MultiStepForm = () => {
                     <label htmlFor="floating_clinic_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Name of Clinic</label>
                   </div>
                   <div className="relative z-0 w-full mb-5 group">
-                    <input type="text" name="fee" id="floating_fee" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "
+                    <input type="text" name="appointment_fee" id="floating_fee" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "
                       onChange={handleClinicChange} />
 
                     <label htmlFor="floating_fee" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Appointment Charge</label>
