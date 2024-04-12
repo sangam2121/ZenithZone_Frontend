@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import HeroSection from '../components/HeroSection'
 import Card from '../components/Card'
@@ -6,28 +6,8 @@ import Footer from '../components/Footer'
 
 
 
-
-
 const Home = () => {
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const isAuthenticated = await authenticate();
-  //       if (!isAuthenticated) {
-  //         navigate('/login',{state:{isNotAuauthenticated:true}});
-  //       } else {
-  //         console.log('User is authenticated.');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error in useEffect:', error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [navigate]);
-
+ 
   return (
     <>
       <Navbar />

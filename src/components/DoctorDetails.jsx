@@ -3,6 +3,9 @@ import Navbar from './Navbar';
 import { FaStar } from "react-icons/fa6";
 import { useParams, useNavigate } from 'react-router-dom';
 import { authenticate } from '../utils/auth';
+import DisplayMap from './DisplayMap';
+
+
 
 const MyTabs = () => {
     const navigate = useNavigate();
@@ -19,6 +22,8 @@ const MyTabs = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [paymentId, setPaymentId] = useState(null);
     const [reviews, setReviews] = useState([]);
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
     const [appointment, setAppointment] = useState({
         'doctor': null
     });
@@ -70,6 +75,22 @@ const MyTabs = () => {
             console.error('Error in useEffect:', error);
         }
     };
+
+    const fetchLocation = async () => {
+        try {
+            // Fetch latitude and longitude coordinates for the doctor's location (replace with your API endpoint)
+            const response = await fetch('YOUR_API_ENDPOINT');
+            if (!response.ok) {
+                throw new Error('Failed to fetch location');
+            }
+            const { latitude, longitude } = await response.json();
+            setLatitude(latitude);
+            setLongitude(longitude);
+        } catch (error) {
+            console.error('Error fetching location:', error);
+        }
+    };
+
     const handlePaymentModalClose = () => {
         setIsPaymentModalOpen(false)
     }
@@ -141,6 +162,10 @@ const MyTabs = () => {
         } catch (error) {
             console.log("Error on booking", data)
         }
+    }
+
+    const handleChat=()=>{
+        navigate('/contact', { state: { otherUserId: doctorUserId } });
     }
 
     const handlePayment = async () => {
@@ -229,6 +254,14 @@ const MyTabs = () => {
                                     onClick={fetchData}
                                 >
                                     Book Appointment
+                                </button>
+
+                                <button  onClick={handleChat} type="button" class="text-white font-medium text-sm px-5 py-2.5 me-2 mb-2  inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    <svg class="w-3.5 h-3.5 text-white me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
+                                        <path d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
+                                        <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
+                                    </svg>
+                                    Chat
                                 </button>
 
                             </div>
@@ -361,15 +394,11 @@ const MyTabs = () => {
                             role="tabpanel"
                             aria-labelledby="third-tab"
                         >
-                            <div className='w-[1200px] mx-auto'>
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3553.9738132950447!2d84.8776681!3d27.0309934!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb188d9b82c8ad%3A0xae31bde410797bf7!2sSwoyambhu%20Mahachaitya!5e0!3m2!1sen!2snp!4v1707903982278!5m2!1sen!2snp" width="1200" height="450" allowFullsSreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-
+                            <div style={{ position: 'relative' }}>
+                                <DisplayMap latitude={5.8987} longitude={6.78979} />
                             </div>
-
                         </div>
                     </div>
-
-
                     <div>
                         {/* Backdrop Overlay */}
                         <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isModalOpen ? 'block' : 'hidden'}`} onClick={handleCloseModal}></div>

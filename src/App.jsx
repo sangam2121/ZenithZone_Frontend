@@ -15,6 +15,7 @@ import ReadJournal from './pages/ReadJournal'
 import DoctorDetails from './components/DoctorDetails'
 import RegisterModal from './components/RegisterModal'
 import DoctorProfileSetup from './pages/DoctorProfileSetup'
+import Map from "./components/Map"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -38,6 +39,7 @@ const App = () => {
         <Route path='/doctor-detail/:doctorUserId' element={<DoctorDetails/>}></Route>
         <Route path='/read-journal/' element={<ReadJournal/>}></Route>
         <Route path='/read-journal/:journalId' element={<ReadJournal/>}></Route>
+        <Route path='/map' element={<Map/>}></Route>
 
         <Route path="*" element={<Error/>}></Route>
       </Routes>
