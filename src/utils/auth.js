@@ -41,10 +41,11 @@ const authenticate = async () => {
         const decodedData = jwtDecode(access);
 
         if (decodedData) {
-          // console.log("decoded data", decodedData);
+          console.log("decoded data", decodedData);
           localStorage.setItem("userId", decodedData.user_id);
           localStorage.setItem("userName", decodedData.user_name);
           localStorage.setItem("userType", decodedData.user_type)
+          localStorage.setItem("userImage",decodedData.image)
         }
 
         return true;

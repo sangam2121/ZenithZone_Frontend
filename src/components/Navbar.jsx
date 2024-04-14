@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { authenticate } from "../utils/auth";
+import { Link, useLocation } from 'react-router-dom';
+import { authenticate } from '../utils/auth';
 
 const Navbar = () => {
   const [login, setLogin] = useState(false);
-  const navigate = useNavigate();
+  const [imagePath, setImagePath] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const isAuthenticated = await authenticate();
         if (isAuthenticated) {
-          setLogin(true)
+          setLogin(true);
         }
       } catch (error) {
         console.error('Error in useEffect:', error);
@@ -19,30 +20,37 @@ const Navbar = () => {
     };
 
     fetchData();
-  }, [navigate]);
 
+    if (localStorage.getItem('userImage')) {
+      setImagePath(`http://127.0.0.1:8000${localStorage.getItem('userImage')}`);
+    } else {
+      setImagePath(`http://127.0.0.1:8000/media/default.png`);
+    }
+  }, []);
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900 mb-3 max-w-[1200px] mx-auto">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-[#F05423]">Zenith<span className='text-[#121F49]'>Zone</span></span>
-        </a>
+        <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+          <span className="self-center text-2xl font-semibold whitespace-nowrap text-[#F05423]">Zenith<span className="text-[#121F49]">Zone</span></span>
+        </Link>
         <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-
-
           {login ? (
-            <div className='flex items-center justify-between gap-3'>
-              <p>{`Hi, ${localStorage.getItem("userName")}`}</p>
-              <Link to={localStorage.getItem("userType") === "doctor" ? "/doctor-dashboard" : "/user-dashboard"}><button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button">
-                <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
-              </button>
+            <div className="flex items-center gap-3">
+              <p>{`Hi, ${localStorage.getItem('userName')}`}</p>
+              <Link to={localStorage.getItem('userType') === 'doctor' ? '/doctor-dashboard' : '/user-dashboard'}>
+                <button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button">
+                  <img className="w-8 h-8 rounded-full" src={imagePath} alt="user photo" />
+                </button>
               </Link>
             </div>
-
           ) : (
             <>
-              <button type="button" className="text-white  bg-[#121F49] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2 text-center me-3">
+              <button type="button" className="text-white bg-[#121F49] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2 text-center me-3">
                 <Link to="/register">Sign up</Link>
               </button>
               <button type="button" className="text-[#F05423] bg-[#FEEEE9] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2 text-center">
@@ -50,7 +58,6 @@ const Navbar = () => {
               </button>
             </>
           )}
-
           <button
             data-collapse-toggle="navbar-cta"
             type="button"
@@ -65,27 +72,39 @@ const Navbar = () => {
           </button>
         </div>
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-cta">
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white ">
-            <li>
-              <Link to="/" className="block py-2 px-3 md:p-0 text-[#F05423] bg-blue-700 rounded md:bg-transparent" aria-current="page">Home</Link>
-            </li>
-            <li>
-              <Link to="/journal" className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-[#F05423] ">Journal</Link>
-            </li>
-            <li>
-              <Link to="/library" className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-[#F05423] ">Library</Link>
-            </li>
-            <li>
-              <Link to="/book-psychiatrist" className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-[#F05423] ">Book Psychiatrist</Link>
-            </li>
-            <li>
-              <Link to="/contact" className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-[#F05423]">Contact</Link>
-            </li>
+          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white">
+            <NavItem to="/" active={isActive('/')}>
+              Home
+            </NavItem>
+            <NavItem to="/journal" active={isActive('/journal')}>
+              Journal
+            </NavItem>
+            <NavItem to="/library" active={isActive('/library')}>
+              Library
+            </NavItem>
+            <NavItem to="/book-psychiatrist" active={isActive('/book-psychiatrist')}>
+              Book Psychiatrist
+            </NavItem>
+            <NavItem to="/contact" active={isActive('/contact')}>
+              Contact
+            </NavItem>
           </ul>
         </div>
       </div>
     </nav>
   );
 };
+
+const NavItem = ({ to, active, children }) => (
+  <li>
+    <Link
+      to={to}
+      className={`block py-2 px-3 md:p-0 ${active ? 'text-[#F05423]': 'text-gray-900 hover:text-[#F05423]'}`}
+      aria-current={active ? 'page' : undefined}
+    >
+      {children}
+    </Link>
+  </li>
+);
 
 export default Navbar;

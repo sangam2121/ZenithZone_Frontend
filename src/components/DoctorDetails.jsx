@@ -164,7 +164,7 @@ const MyTabs = () => {
         }
     }
 
-    const handleChat=()=>{
+    const handleChat = () => {
         navigate('/contact', { state: { otherUserId: doctorUserId } });
     }
 
@@ -256,7 +256,7 @@ const MyTabs = () => {
                                     Book Appointment
                                 </button>
 
-                                <button  onClick={handleChat} type="button" class="text-white font-medium text-sm px-5 py-2.5 me-2 mb-2  inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <button onClick={handleChat} type="button" class="text-white font-medium text-sm px-5 py-2.5 me-2 mb-2  inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                     <svg class="w-3.5 h-3.5 text-white me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
                                         <path d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
                                         <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
@@ -325,31 +325,65 @@ const MyTabs = () => {
                             role="tabpanel"
                             aria-labelledby="first-tab"
                         >
-                            <div className="container mx-auto p-6">
-                                <p className="text-lg text-gray-700 leading-7">
-                                    {doctorDetail.bio}
+                            <div className="container mx-auto">
+                                <p className="text-lg text-gray-700 leading-7 mb-5">
+                                    {doctorDetail.user.bio}
                                 </p>
 
-                                <p className="my-3 text-2xl font-bold tracking-tight text-gray-900">Education</p>
+                                <div className="bg-white p-3 shadow-sm rounded-sm">
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
-                                        <p className="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
+                                    <div className="grid grid-cols-2">
+                                        <div>
+                                            <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
+                                                <span clas="text-green-500">
+                                                    <svg className="h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </span>
+                                                <span className="tracking-wide">Experience</span>
+                                            </div>
+                                            <ul className="list-inside space-y-2">
+                                                {doctorDetail.experience.map((experienceItem) => {
+                                                    return (<>
+                                                        <li>
+                                                            <div className="text-teal-600">{experienceItem.title.charAt(0).toUpperCase() + experienceItem.title.slice(1)} at    {experienceItem.hospital.charAt(0).toUpperCase() + experienceItem.hospital.slice(1)}</div>
+                                                            <div className="text-gray-500 text-xs">{`${experienceItem.start_date} - ${experienceItem.end_date}`}</div>
+                                                        </li>
+                                                    </>)
+                                                })
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
+                                                <span clas="text-green-500">
+                                                    <svg className="h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path fill="#fff" d="M12 14l9-5-9-5-9 5 9 5z" />
+                                                        <path fill="#fff"
+                                                            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                                                    </svg>
+                                                </span>
+                                                <span className="tracking-wide">Education</span>
+                                            </div>
+                                            <ul className="list-inside space-y-2">
+                                                {doctorDetail.education.map((educationItem) => {
+                                                    return (<>
+                                                        <li>
+                                                            <div className="text-teal-600">{educationItem.level.charAt(0).toUpperCase() + educationItem.level.slice(1)} Degree in {educationItem.school.charAt(0).toUpperCase() + educationItem.school.slice(1)}</div>
+                                                            <div className="text-gray-500 text-xs">{`${educationItem.start_date} - ${educationItem.end_date}`}</div>
+                                                        </li>
+                                                    </>)
+                                                })
+                                                }
+                                            </ul>
+                                        </div>
                                     </div>
-
-                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">Master in Doctor (MD)</h5>
-                                        <p className="font-normal text-gray-700">Tribhuvan University | Institute of Medical Science | 2015-2020</p>
-                                    </div>
-                                </div>
-
-                                <p className="my-3 text-2xl font-bold tracking-tight text-gray-900">Experience</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                                    <div className="flowbite-card bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 p-6">
-                                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">General Physician</h5>
-                                        <p className="font-normal text-gray-700">Norvic Hospital | 2023-present</p>
-                                    </div>
+                                    {/* End of Experience and education grid  */}
                                 </div>
                             </div>
 

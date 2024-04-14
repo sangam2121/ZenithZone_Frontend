@@ -17,6 +17,7 @@ const RegisterModal = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // console.log(form)
 
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/auth/register/`, {

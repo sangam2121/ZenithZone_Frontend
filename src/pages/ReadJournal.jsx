@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { useParams, useNavigate } from 'react-router-dom';
 import { authenticate } from '../utils/auth';
+import {toast} from 'react-toastify'
 
 const ReadJournal = () => {
     const navigate = useNavigate();
@@ -13,7 +14,7 @@ const ReadJournal = () => {
         'post': journalId,
         'author': author,
         'content': null,
-    }) 
+    })
 
     useEffect(() => {
         fetchJournal();
@@ -58,7 +59,6 @@ const ReadJournal = () => {
     const handleSubmit = async (e) => {
         try {
             e.preventDefault();
-            console.log(comment);
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/comments/`, {
                 method: 'post',
                 headers: {
@@ -70,10 +70,31 @@ const ReadJournal = () => {
 
             const data = await response.json();
             if (response.ok) {
-                console.log(data)
+                toast.success('Comment posted successful.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
+                setTimeout(()=>{
+                    window.location.reload();
+                },1000)
+
             }
             else {
-                console.log(data)
+                Object.values(data).forEach((value) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((error) => {
+                            toast.error(error, {
+                                position: toast.POSITION.TOP_RIGHT,
+                                autoClose: 3000,
+                            });
+                        });
+                    } else {
+                        toast.error(value, {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    }
+                });
             }
 
         } catch (error) {
@@ -88,7 +109,7 @@ const ReadJournal = () => {
                 <div class="w-[70%]">
                     <article class="mb-5">
                         <div class="flex items-center mb-4">
-                            <img class="w-10 h-10 me-4 rounded-full" src="/images/avatar.jpg" alt="" />
+                            <img class="w-10 h-10 me-4 rounded-full" src={journal.author.image} alt="" />
                             <div class="font-medium">
                                 <p>{`${journal.author.first_name} ${journal.author.last_name}`}<time datetime="2014-08-16 19:00" class="block text-sm text-gray-700 ">{`posted on ${new Date(journal.created_at).toDateString()}`} </time></p>
                             </div>
@@ -110,7 +131,7 @@ const ReadJournal = () => {
                         commentList.map((comment) => {
                             return (
                                 <div class="flex items-start gap-2.5 mb-3">
-                                    <img class="w-8 h-8 rounded-full" src={`${import.meta.env.VITE_AUTH_BASE_URL}${comment.author.image}`} alt="image" />
+                                    <img class="w-8 h-8 rounded-full" src={`${comment.author.image}`} alt="image" />
                                     <div class="flex flex-col gap-1 w-full max-w-[500px]">
                                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                                             <span class="text-sm font-semibold text-gray-900 dark:text-white">{`${comment.author.first_name} ${comment.author.last_name}`}</span>
@@ -141,8 +162,6 @@ const ReadJournal = () => {
                         </div>
                     </form>
                     <p class="ms-auto text-xs text-gray-500 dark:text-gray-400">Remember, contributions to this topic should follow our <a href="#" class="text-blue-600  hover:underline">Community Guidelines</a>.</p>
-
-
 
                 </div>
 

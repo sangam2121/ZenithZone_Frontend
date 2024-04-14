@@ -15,10 +15,10 @@ const Footer = () => {
                             <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
                             <ul class="text-gray-500 dark:text-gray-400 font-medium">
                                 <li class="mb-4">
-                                    <a href="" class="hover:underline">Resource-1</a>
+                                    <a href="/journal" class="hover:underline">Journal</a>
                                 </li>
                                 <li>
-                                    <a href="" class="hover:underline">Resource-2</a>
+                                    <a href="/library" class="hover:underline">library</a>
                                 </li>
                             </ul>
                         </div>

@@ -90,8 +90,9 @@ const Chat = () => {
 
       if(firstTimeChatOtherUserId){
          setOtherUserId(firstTimeChatOtherUserId)
+         firstTimeChat();
       }
-      firstTimeChat();
+     
       fetchChatroom();
 
    }, [messages])

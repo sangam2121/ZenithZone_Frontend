@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import {toast} from 'react-toastify'
+import { authenticate } from '../utils/auth'
 
 const ProfileCard = () => {
     const [profileData, setProfileData] = useState({});
@@ -80,6 +81,7 @@ const ProfileCard = () => {
         updatedData.append('phone', updateProfile.phone)
         updatedData.append('address', updateProfile.address)
         updatedData.append('image', updateProfile.image)
+        
         try {
             const userId = localStorage.getItem('userId');
             const updateUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/patient/update/${userId}/`;
@@ -94,12 +96,12 @@ const ProfileCard = () => {
             const responseData = await response.json();
             if (response.ok) {
                 handleModalClose();
+                console.log(responseData);
                 toast.success('Profile Updated successfully!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
-
-
+              
             } else {
                 Object.values(responseData).forEach((value) => {
                     if (Array.isArray(value)) {
@@ -123,6 +125,7 @@ const ProfileCard = () => {
     }
 
     useEffect(() => {
+        authenticate();
         fetchProfileData();
     }, []);
 

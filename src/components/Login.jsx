@@ -63,6 +63,7 @@ const Login = () => {
                 localStorage.setItem("userId",decodedData.user_id);
                 localStorage.setItem("userName",decodedData.user_name);
                 localStorage.setItem("userType",decodedData.user_type);
+                localStorage.setItem("userImage",decodedData.image)
 
                 if(decodedData.user_type ==="patient"){
                     navigate('/user-dashboard', { state: { isLoggedIn: true } })
