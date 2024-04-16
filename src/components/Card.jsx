@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 const Card = (props) => {
     return (
-        <div class='w-[350px] max-h-[345px] p-2 bg-[rgb(254,238,233)]'>
-            <div class='w-[100%] h-[160px] mb-4'>
+        <div class='w-[350px] max-h-[400px] p-2 bg-[rgb(254,238,233)]'>
+            <div class='w-[100%] h-[250px] mb-4'>
                 <img src={props.image} alt="thumbnail" class="h-[100%] w-[100%] rounded-md"></img>
             </div>
             <div class='flex flex-row justify-between mb-2.5'>

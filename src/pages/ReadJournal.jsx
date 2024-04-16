@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { authenticate } from '../utils/auth';
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify'
 
 const ReadJournal = () => {
     const navigate = useNavigate();
+    const [showFullContent, setShowFullContent] = useState(false);
     const author = localStorage.getItem("userId");
+    const [journalList, setJournalList] = useState([]);
     const { journalId } = useParams();
     const [commentList, setCommentList] = useState();
     const [journal, setJournal] = useState(null);
@@ -19,8 +21,30 @@ const ReadJournal = () => {
     useEffect(() => {
         fetchJournal();
         fetchData();
-
+        fetchRelatedJournal();
     }, [])
+
+    const toggleReadMore = () => {
+        setShowFullContent(!showFullContent);
+    };
+
+    const fetchRelatedJournal = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/posts/lists`, {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setJournalList(data);
+                console.log(journalList)
+            } else {
+                console.log("Error occurred");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const fetchData = async () => {
         try {
@@ -74,9 +98,9 @@ const ReadJournal = () => {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
-                setTimeout(()=>{
+                setTimeout(() => {
                     window.location.reload();
-                },1000)
+                }, 1000)
 
             }
             else {
@@ -114,8 +138,13 @@ const ReadJournal = () => {
                                 <p>{`${journal.author.first_name} ${journal.author.last_name}`}<time datetime="2014-08-16 19:00" class="block text-sm text-gray-700 ">{`posted on ${new Date(journal.created_at).toDateString()}`} </time></p>
                             </div>
                         </div>
-                        <p class="mb-2 text-gray-700  text-justify">{journal.content}</p>
-                        <a href="#" class="block mb-5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">Read more</a>
+                        <p className={`mb-2 text-gray-700 text-justify ${showFullContent ? '' : 'line-clamp-4'}`}>
+                            {journal.content}
+                        </p>
+                        <a href="#" className="block mb-5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500" onClick={toggleReadMore}>
+                            {showFullContent ? 'Read less' : 'Read more'}
+                        </a>
+
                         <aside>
                             <p class="mt-1 text-xs text-gray-500 ">19 people found this helpful</p>
                             <div class="flex items-center mt-3">
@@ -168,32 +197,33 @@ const ReadJournal = () => {
                 <div class='w-[30%] px-3 border-l-2 '>
                     <h2 class='text-center font-bold mb-2 text-2xl'>Related Journals</h2>
 
+                    {
+                        journalList.map((journal) => {
+                            if (journal.id != journalId) {
+                                return (
+                                    <>
+                                        <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow mb-2 ">
+                                            <a href="#">
+                                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 ">{journal.title}</h5>
+                                            </a>
 
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow ">
-                        <a href="#">
-                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 ">Healthcare technology in 2024</h5>
-                        </a>
-                        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magnam quaerat tenetur laborum repellendus iusto doloremque aut mollitia quasi placeat ipsam!</p>
-                        <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-[#121F49] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
-                            Read more
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                            </svg>
-                        </a>
-                    </div>
+                                            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 overflow-hidden line-clamp-5">
+                                                {journal.content}
+                                            </p>
 
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow ">
-                        <a href="#">
-                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Healthcare technology in 2024</h5>
-                        </a>
-                        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magnam quaerat tenetur laborum repellendus iusto doloremque aut mollitia quasi placeat ipsam!</p>
-                        <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-[#121F49] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
-                            Read more
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                            </svg>
-                        </a>
-                    </div>
+                                            <a href={`/read-journal/${journal.id}`} class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-[#121F49] rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                                Read more
+                                                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </>
+                                )
+                            }
+                        })
+                    }
+
                 </div>
             </div>)
                 : (

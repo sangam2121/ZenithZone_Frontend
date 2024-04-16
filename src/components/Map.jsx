@@ -60,7 +60,6 @@ const Map = ({ onLocationSelect }) => {
         .then(data => {
           if (data && data.length > 0) {
             const { lat, lon } = data[0];
-            setSelectedLocation({ lat, lng: lon });
             mapInstanceRef.current.setView([lat, lon], 14);
 
             // Invoke the callback provided by the parent component with the searched location
@@ -95,7 +94,7 @@ const Map = ({ onLocationSelect }) => {
           </button>
         </div>
       </div>
-      <div ref={mapContainerRef} style={{ height: "400px", width: "700px" }} />
+      <div ref={mapContainerRef} style={{ height: "300px", width: "700px" }} />
       {selectedLocation && (
         <p>
           Selected Location: Latitude {selectedLocation.lat}, Longitude {selectedLocation.lng}

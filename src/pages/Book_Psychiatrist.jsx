@@ -44,7 +44,7 @@ const Book_Psychiatrist = () => {
     const searchQuery = e.target.elements.search.value.trim();
     fetchDoctors(searchQuery);
   };
-
+console.log(doctorList);
   return (
     <>
       <Navbar />
@@ -86,9 +86,10 @@ const Book_Psychiatrist = () => {
                   doctorUserId={doctor.user.id}
                   firstName={doctor.user.first_name}
                   lastName={doctor.user.last_name}
-                  img={doctor.image}
-                  clinic={doctor.clinic}
-                  specialization={doctor.speciality}
+                  img={(doctor.image)?doctor.image:"http://localhost:8000/media/default.png"}
+                  clinic={doctor.clinic_name}
+                  specialization={doctor.speciality?doctor.speciality:"Psychiatrist"}
+                  patientCount={doctor.patient_checked?doctor.patient_checked:"No"}
                 />
               ))
             ) : (

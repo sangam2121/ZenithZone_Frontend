@@ -21,7 +21,7 @@ const DoctorCard = (props) => {
             </div>
             <div class='flex items-center gap-4 justify-between'>
                 <div>
-                    <div class='flex items-center gap-1'>  <FaPlus class='font-semibold'></FaPlus><span class='font-semibold'>1500 Patients</span></div>
+                    <div class='flex items-center gap-1'>  <FaPlus class='font-semibold'></FaPlus><span class='font-semibold'>{props.patientCount} Patients</span></div>
                     <p class='text-sm'>{props.clinic}</p>
                 </div>
                 <Link to={`/doctor-detail/${props.doctorUserId}`}><FaRegCircleRight class='text-2xl font-[200] cursor-pointer'></FaRegCircleRight></Link>

@@ -24,6 +24,7 @@ const Chat = () => {
             };
             setSelectedUser(newUser); // Set the selected user state
             setOtherUserId(firstTimeChatOtherUserId); // Set otherUserId for WebSocket connection
+            
          } else {
             console.log("Error occurred while fetching doctor details");
          }
@@ -48,10 +49,10 @@ const Chat = () => {
             // console.log(data)
 
             const formattedChatRooms = data.map(room => {
-               const userId = room.participant1 === loggedInUserId ? room.participant1.id : room.participant2.id;
-               const otherUserId = room.participant1 === loggedInUserId ? room.participant2.id : room.participant1.id;
-               const name = room.participant1 === loggedInUserId ? `${room.participant2.first_name} ${room.participant2.last_name}` : `${room.participant1.first_name} ${room.participant1.last_name}`;
-               const image = room.participant1 === loggedInUserId ? room.pp2 : room.pp1;
+               const userId = loggedInUserId === room.participant1.id ? room.participant1.id : room.participant2.id;
+               const otherUserId = loggedInUserId !== room.participant1.id ? room.participant1.id : room.participant2.id;
+               const name = loggedInUserId === room.participant1.id ? `${room.participant2.first_name} ${room.participant2.last_name}` : `${room.participant1.first_name} ${room.participant1.last_name}`;
+               const image = loggedInUserId === room.participant1  ? room.pp2 : room.pp1;
                const lastMessageContent = room.last_message.content;
                const lastMessageUsername = room.last_message.username;
                const chatId = room.id;

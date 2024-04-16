@@ -30,7 +30,7 @@ const ReviewWrite = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/reviews/`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/reviews/create/`, {
                 method: "POST",
                 body: JSON.stringify(review),
                 headers: {
@@ -45,6 +45,7 @@ const ReviewWrite = () => {
                     autoClose: 3000,
                 });
                 setReview(null)
+                handleModalClose();
 
             } else {
                 Object.values(data).forEach((value) => {
@@ -62,6 +63,7 @@ const ReviewWrite = () => {
                         });
                     }
                 });
+                handleModalClose();
             }
         } catch (error) {
 

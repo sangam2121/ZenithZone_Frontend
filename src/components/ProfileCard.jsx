@@ -38,7 +38,7 @@ const ProfileCard = () => {
                 [e.target.name]: e.target.value
             });
         }
-        console.log(updateProfile)
+        // console.log(updateProfile)
     };
 
     const fetchProfileData = async () => {
@@ -74,14 +74,19 @@ const ProfileCard = () => {
 
     const update = async (e) => {
         e.preventDefault();
+    
         const updatedData = new FormData();
-        updatedData.append('first_name', updateProfile.first_name)
-        updatedData.append('last_name', updateProfile.last_name)
-        updatedData.append('email', updateProfile.email)
-        updatedData.append('phone', updateProfile.phone)
-        updatedData.append('address', updateProfile.address)
-        updatedData.append('image', updateProfile.image)
-        
+        updatedData.append('first_name', updateProfile.first_name);
+        updatedData.append('last_name', updateProfile.last_name);
+        updatedData.append('email', updateProfile.email);
+        updatedData.append('phone', updateProfile.phone);
+        updatedData.append('address', updateProfile.address);
+    
+        // Check if 'image' property exists in updateProfile and it's not null
+        if (updateProfile.image instanceof File && updateProfile.image.size > 0) {
+            updatedData.append('image', updateProfile.image);
+        }
+    
         try {
             const userId = localStorage.getItem('userId');
             const updateUrl = `${import.meta.env.VITE_AUTH_BASE_URL}/patient/update/${userId}/`;
@@ -92,37 +97,55 @@ const ProfileCard = () => {
                     'Authorization': `Bearer ${localStorage.getItem("access")}`
                 }
             };
+    
             const response = await fetch(updateUrl, requestOptions);
             const responseData = await response.json();
+    
             if (response.ok) {
+                setUpdateProfile({
+                    email: responseData.user.email,
+                    first_name: responseData.user.first_name,
+                    last_name: responseData.user.last_name,
+                    phone: responseData.user.phone,
+                    address: responseData.user.address,
+                    image: responseData.image
+                })
                 handleModalClose();
                 console.log(responseData);
                 toast.success('Profile Updated successfully!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });
-              
             } else {
-                Object.values(responseData).forEach((value) => {
-                    if (Array.isArray(value)) {
-                        value.forEach((error) => {
-                            toast.error(error, {
-                                position: toast.POSITION.TOP_RIGHT,
-                                autoClose: 3000,
-                            });
-                        });
-                    } else {
-                        toast.error(value, {
-                            position: toast.POSITION.TOP_RIGHT,
-                            autoClose: 3000,
-                        });
-                    }
-                });
+                handleErrors(responseData);
             }
         } catch (error) {
             console.error(error);
+            toast.error('An error occurred while updating profile.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+            });
         }
-    }
+    };
+    
+    const handleErrors = (responseData) => {
+        Object.values(responseData).forEach((value) => {
+            if (Array.isArray(value)) {
+                value.forEach((error) => {
+                    toast.error(error, {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 3000,
+                    });
+                });
+            } else {
+                toast.error(value, {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
+            }
+        });
+    };
+    
 
     useEffect(() => {
         authenticate();

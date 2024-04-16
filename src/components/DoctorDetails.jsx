@@ -41,7 +41,7 @@ const MyTabs = () => {
         }
     };
 
-
+console.log(doctorDetail);
     const fetchDoctorDetail = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${doctorUserId}`, {
@@ -52,6 +52,8 @@ const MyTabs = () => {
 
             if (response.ok) {
                 setDoctorDetail(data);
+                setLatitude(data.clinic_address_lat);
+                setLongitude(data.clinic_address_lon);
             }
             else {
                 console.log("Error occured while fetching doctor detail");
@@ -76,20 +78,19 @@ const MyTabs = () => {
         }
     };
 
-    const fetchLocation = async () => {
-        try {
-            // Fetch latitude and longitude coordinates for the doctor's location (replace with your API endpoint)
-            const response = await fetch('YOUR_API_ENDPOINT');
-            if (!response.ok) {
-                throw new Error('Failed to fetch location');
-            }
-            const { latitude, longitude } = await response.json();
-            setLatitude(latitude);
-            setLongitude(longitude);
-        } catch (error) {
-            console.error('Error fetching location:', error);
-        }
-    };
+    // const fetchLocation = async () => {
+    //     try {
+    //         // Fetch latitude and longitude coordinates for the doctor's location (replace with your API endpoint)
+    //         const response = await fetch('YOUR_API_ENDPOINT');
+    //         if (!response.ok) {
+    //             throw new Error('Failed to fetch location');
+    //         }
+    //         const { latitude, longitude } = await response.json();
+           
+    //     } catch (error) {
+    //         console.error('Error fetching location:', error);
+    //     }
+    // };
 
     const handlePaymentModalClose = () => {
         setIsPaymentModalOpen(false)
@@ -428,9 +429,9 @@ const MyTabs = () => {
                             role="tabpanel"
                             aria-labelledby="third-tab"
                         >
-                            <div style={{ position: 'relative' }}>
-                                <DisplayMap latitude={5.8987} longitude={6.78979} />
-                            </div>
+                            
+                                <DisplayMap latitude={latitude} longitude={longitude} />
+                            
                         </div>
                     </div>
                     <div>

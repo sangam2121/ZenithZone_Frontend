@@ -1,24 +1,53 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom';
+import DoctorProfileUpdate from './DoctorProfileUpdate';
+import EducationUpdate from './EducationUpdate';
+import ExperienceUpdate from './ExperienceUpdate';
+import ContactUpdate from './ContactUpdate';
 
 const DoctorProfileCard = () => {
     const [profileData, setProfileData] = useState({});
-    const [updateProfile, setUpdateProfile] = useState({
-        email: "",
-        first_name: "",
-        last_name: "",
-        phone: "",
-        address: "",
-    });
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isEducationModalOpen, setIsEducationModalOpen] = useState(false);
+    const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
 
-    const handleChange = (e) => {
-        setUpdateProfile({
-            ...updateProfile,
-            [e.target.name]: e.target.value
-        });
-    };
+    const handleEducationModalOpen = () => {
+        setIsEducationModalOpen(true);
+    }
+
+    const handleEducationModalClose = () => {
+        setIsEducationModalOpen(false);
+    }
+
+    const handleExperienceModalOpen = () => {
+        setIsExperienceModalOpen(true);
+    }
+
+    const handleExperienceModalClose = () => {
+        setIsExperienceModalOpen(false);
+    }
+
+
+    const handleProfileModalOpen = () => {
+        setIsProfileModalOpen(true);
+    }
+
+    const handleProfileModalClose = () => {
+        setIsProfileModalOpen(false);
+    }
+
+
+    const handleContactModalOpen = () => {
+        setIsContactModalOpen(true);
+    }
+
+    const handleContactModalClose = () => {
+        setIsContactModalOpen(false);
+    }
+
+
 
     const fetchProfileData = async () => {
         try {
@@ -32,9 +61,9 @@ const DoctorProfileCard = () => {
 
             const data = await response.json();
             if (response.ok) {
-                console.log(data)
+                // console.log(data)
                 setProfileData(data);
-                setUpdateProfile(data.user)
+                
             } else {
                 console.log("Error Occurred");
             }
@@ -69,15 +98,35 @@ const DoctorProfileCard = () => {
 
                                 <ul
                                     className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                                    <li className="flex items-center py-3">
+                                    <li className="flex items-center py-2">
                                         <span>Status</span>
                                         <span className="ml-auto"><span
-                                            className="bg-green-500 py-1 px-2 rounded text-white text-sm">Active</span></span>
+                                            className="bg-green-500 py-1 px-2 rounded text-white text-sm">Verified</span></span>
                                     </li>
-                                    <li className="flex items-center py-3">
-                                        <span className='me-2'>Member since</span>
-                                        <span className="ml-auto">{new Date(profileData.created_at).toDateString}</span>
+                                    <li className="flex items-center py-2 cursor-pointer" onClick={handleEducationModalOpen}>
+                                        <span className='me-2'>Add Education</span>
+                                        <svg class="w-4 h-4 ms-auto me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M18 2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2ZM2 18V7h6.7l.4-.409A4.309 4.309 0 0 1 15.753 7H18v11H2Z" />
+                                            <path d="M8.139 10.411 5.289 13.3A1 1 0 0 0 5 14v2a1 1 0 0 0 1 1h2a1 1 0 0 0 .7-.288l2.886-2.851-3.447-3.45ZM14 8a2.463 2.463 0 0 0-3.484 0l-.971.983 3.468 3.468.987-.971A2.463 2.463 0 0 0 14 8Z" />
+                                        </svg>
+
                                     </li>
+                                    <li className="flex items-center py-2 cursor-pointer" onClick={handleExperienceModalOpen}>
+                                        <span className='me-2'>Add Experience</span>
+                                        <svg class="w-4 h-4 ms-auto me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M18 2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2ZM2 18V7h6.7l.4-.409A4.309 4.309 0 0 1 15.753 7H18v11H2Z" />
+                                            <path d="M8.139 10.411 5.289 13.3A1 1 0 0 0 5 14v2a1 1 0 0 0 1 1h2a1 1 0 0 0 .7-.288l2.886-2.851-3.447-3.45ZM14 8a2.463 2.463 0 0 0-3.484 0l-.971.983 3.468 3.468.987-.971A2.463 2.463 0 0 0 14 8Z" />
+                                        </svg>
+                                    </li>
+
+                                    <li className="flex items-center py-2 cursor-pointer" onClick={handleContactModalOpen}>
+                                        <span className='me-2'>Contact Details</span>
+                                        <svg class="w-4 h-4 ms-auto me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M18 2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2ZM2 18V7h6.7l.4-.409A4.309 4.309 0 0 1 15.753 7H18v11H2Z" />
+                                            <path d="M8.139 10.411 5.289 13.3A1 1 0 0 0 5 14v2a1 1 0 0 0 1 1h2a1 1 0 0 0 .7-.288l2.886-2.851-3.447-3.45ZM14 8a2.463 2.463 0 0 0-3.484 0l-.971.983 3.468 3.468.987-.971A2.463 2.463 0 0 0 14 8Z" />
+                                        </svg>
+                                    </li>
+
                                 </ul>
                             </div>
                             {/* End of profile card */}
@@ -129,7 +178,7 @@ const DoctorProfileCard = () => {
                                     </div>
                                 </div>
                                 <button
-                                    className="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4" ><Link to='/doctor-profile-setup'>Upadate Profile</Link></button>
+                                    className="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4" onClick={handleProfileModalOpen}>Update Profile</button>
                             </div>
                             {/* End of about section*/}
 
@@ -149,6 +198,7 @@ const DoctorProfileCard = () => {
                                                 </svg>
                                             </span>
                                             <span className="tracking-wide">Experience</span>
+
                                         </div>
                                         <ul className="list-inside space-y-2">
                                             {profileData.experience.map((experienceItem) => {
@@ -194,6 +244,28 @@ const DoctorProfileCard = () => {
                             {/*  End of profile tab */}
                         </div>
                     </div>
+                    {isProfileModalOpen && (
+                        <DoctorProfileUpdate
+                            onClose={handleProfileModalClose}
+                        />
+                    )}
+                    {isEducationModalOpen && (
+                        <EducationUpdate
+                            onClose={handleEducationModalClose}
+                        />
+                    )}
+
+                    {isExperienceModalOpen && (
+                        <ExperienceUpdate
+                            onClose={handleExperienceModalClose}
+                        />
+                    )}
+
+                    {isContactModalOpen && (
+                        <ContactUpdate
+                            onClose={handleContactModalClose}
+                        />
+                    )}
                 </div>
             ) : (
                 <div class="flex items-center justify-center">
@@ -207,6 +279,7 @@ const DoctorProfileCard = () => {
                 </div>
             )
             }
+
         </>
     )
 }

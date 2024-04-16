@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { authenticate } from '../utils/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "react-toastify"
-
 import Navbar from '../components/Navbar';
 import JournalWriteCard from '../components/JournalWriteCard';
 import ProfileCard from "../components/ProfileCard"
