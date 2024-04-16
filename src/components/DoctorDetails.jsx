@@ -10,8 +10,8 @@ import DisplayMap from './DisplayMap';
 const MyTabs = () => {
     const navigate = useNavigate();
     useEffect(() => {
+        // fetchReviews();
         fetchDoctorDetail();
-        fetchReviews();
     }, [])
 
 
@@ -24,24 +24,25 @@ const MyTabs = () => {
     const [reviews, setReviews] = useState([]);
     const [latitude, setLatitude] = useState(0);
     const [longitude, setLongitude] = useState(0);
+    const [star, setStar] = useState(0);
     const [appointment, setAppointment] = useState({
         'doctor': null
     });
 
-    const fetchReviews = async () => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/reviews/lists?doctor_id=${localStorage.getItem('userId')}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch reviews');
-            }
-            const data = await response.json();
-            setReviews(data.results);
-        } catch (error) {
-            console.error('Error fetching reviews:', error);
-        }
-    };
+    // const fetchReviews = async () => {
+    //     try {
+    //         const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/reviews/lists?doctor_id=${localStorage.getItem('userId')}`);
+    //         if (!response.ok) {
+    //             throw new Error('Failed to fetch reviews');
+    //         }
+    //         const data = await response.json();
+    //         setReviews(data.results);
 
-console.log(doctorDetail);
+    //     } catch (error) {
+    //         console.error('Error fetching reviews:', error);
+    //     }
+    // };
+
     const fetchDoctorDetail = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/doctor/update/${doctorUserId}`, {
@@ -49,11 +50,20 @@ console.log(doctorDetail);
             })
 
             const data = await response.json();
-
+            
             if (response.ok) {
                 setDoctorDetail(data);
+                if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
+                    const totalRating = data.reviews.reduce((acc, review) => acc + review.rating, 0);
+                    const averageRating = totalRating / data.reviews.length;
+                    setReviews(Math.round(averageRating));
+                } else {
+                    // Default to 1 star if no reviews
+                    setStar(1);
+                }
                 setLatitude(data.clinic_address_lat);
                 setLongitude(data.clinic_address_lon);
+                setReviews(data.reviews);
             }
             else {
                 console.log("Error occured while fetching doctor detail");
@@ -62,6 +72,10 @@ console.log(doctorDetail);
         } catch (error) {
             console.log("Error occured!!!");
         }
+    }
+    const stars = []
+    for (let i = 0; i < star; i++) {
+        stars.push(<FaStar key={i} className='text-[orange]' />);
     }
 
     const fetchData = async () => {
@@ -77,20 +91,6 @@ console.log(doctorDetail);
             console.error('Error in useEffect:', error);
         }
     };
-
-    // const fetchLocation = async () => {
-    //     try {
-    //         // Fetch latitude and longitude coordinates for the doctor's location (replace with your API endpoint)
-    //         const response = await fetch('YOUR_API_ENDPOINT');
-    //         if (!response.ok) {
-    //             throw new Error('Failed to fetch location');
-    //         }
-    //         const { latitude, longitude } = await response.json();
-           
-    //     } catch (error) {
-    //         console.error('Error fetching location:', error);
-    //     }
-    // };
 
     const handlePaymentModalClose = () => {
         setIsPaymentModalOpen(false)
@@ -136,8 +136,6 @@ console.log(doctorDetail);
 
             const data = await response.json();
             if (response.ok) {
-
-                console.log("Successful", data);
                 setPaymentId(data.payment);
                 handleCloseModal()
                 handlePaymentModalOpen();
@@ -217,7 +215,6 @@ console.log(doctorDetail);
     const cancelPayment = () => {
 
     }
-    console.log(doctorDetail)
 
     return (
         <>
@@ -235,18 +232,14 @@ console.log(doctorDetail);
                                 <div className="flex items-center justify-between">
                                     <h5 className="text-blue-gray text-lg">{`${doctorDetail.user.first_name} ${doctorDetail.user.last_name}`}</h5>
                                     <div className="flex items-center gap-0">
-                                        <FaStar className='text-[orange]' />
-                                        <FaStar className='text-[orange]' />
-                                        <FaStar className='text-[orange]' />
-                                        <FaStar className='text-[orange]' />
-                                        <FaStar className='text-[orange]' />
+                                        {stars}
 
                                     </div>
                                 </div>
                                 <p className="text-blue-gray">{doctorDetail.speciality}</p>
                             </div>
                         </div>
-                        <div className=" p-0">
+                        {(doctorUserId != localStorage.getItem('userId')) ? (<div className=" p-0">
                             <div className="flex items-center gap-0">
 
                                 <button
@@ -266,7 +259,8 @@ console.log(doctorDetail);
                                 </button>
 
                             </div>
-                        </div>
+                        </div>) : null}
+
                     </div>
 
 
@@ -301,19 +295,6 @@ console.log(doctorDetail);
                                     aria-selected={activeTab === 'second'}
                                 >
                                     Review
-                                </button>
-                            </li>
-                            <li role="presentation">
-                                <button
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'third' ? 'border-blue-500' : ''
-                                        }`}
-                                    id="third-tab"
-                                    onClick={() => handleTabClick('third')}
-                                    role="tab"
-                                    aria-controls="third"
-                                    aria-selected={activeTab === 'third'}
-                                >
-                                    Location
                                 </button>
                             </li>
                         </ul>
@@ -398,7 +379,7 @@ console.log(doctorDetail);
 
                         >
                             <div className='grid grid-cols-2 gap-3'>
-                                {reviews.map((review, index) => (
+                                {reviews&& reviews.map((review, index) => (
                                     <figure key={index} className="max-w-screen-md border rounded-xl p-3 border-gray-300">
                                         <div className="flex items-center mb-4 text-yellow-300">
                                             {[...Array(review.rating)].map((_, i) => (
@@ -422,17 +403,7 @@ console.log(doctorDetail);
                             </div>
 
                         </div>
-                        <div
-                            className={`p-4 rounded-lg bg-gray-50 dark:bg-gray-800 ${activeTab === 'third' ? 'block' : 'hidden'
-                                }`}
-                            id="third"
-                            role="tabpanel"
-                            aria-labelledby="third-tab"
-                        >
-                            
-                                <DisplayMap latitude={latitude} longitude={longitude} />
-                            
-                        </div>
+
                     </div>
                     <div>
                         {/* Backdrop Overlay */}
@@ -506,8 +477,6 @@ console.log(doctorDetail);
             )
             }
 
-
-
             {/* Backdrop Overlay */}
             <div className={`fixed inset-0 z-40 bg-black opacity-50 ${isPaymentModalOpen ? 'block' : 'hidden'}`}></div>
 
@@ -540,6 +509,13 @@ console.log(doctorDetail);
                 </div>
             </div>
 
+            {
+                latitude && longitude && <div className="container mx-auto px-4 py-8">
+                    <h2 className="text-2xl font-bold mb-4">Location Map</h2>
+                    <DisplayMap latitude={latitude} longitude={longitude} />
+                </div>
+
+            }
 
         </>
     );

@@ -50,7 +50,7 @@ const contactUpdate = ({ onClose }) => {
 
             if (clinicResponse.ok) {
                 onClose();
-                toast.success('Profile Updated successfully!', {
+                toast.success('Clinic Details Updated Successfully!', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 3000,
                 });

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
+import {toast} from 'react-toastify'
 
 const AppointmentTable = () => {
     const [appointmentList, setAppointmentList] = useState([]);
@@ -19,6 +20,46 @@ const AppointmentTable = () => {
             console.log("Error", error);
         }
     };
+
+    const handleComplete=async(appointmentid)=>{
+        const response = await fetch(`${import.meta.env.VITE_AUTH_BASE_URL}/appointment/complete/${appointmentid}/`, {
+            method: "POST",
+            body: JSON.stringify({ appointment_id: appointmentid }),
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("access")}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+
+            if (response.ok) {
+                toast.success('Appointment Status Updated Successfully!', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
+
+            }
+            else {
+                Object.values(data).forEach((value) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((error) => {
+                            toast.error(error, {
+                                position: toast.POSITION.TOP_RIGHT,
+                                autoClose: 3000,
+                            });
+                        });
+                    } else {
+                        toast.error(value, {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    }
+                });
+            }
+
+
+    }
 
 
     useEffect(() => {
@@ -62,6 +103,7 @@ const AppointmentTable = () => {
                     <tbody>
                         {
                             appointmentList.map((appointment, index) => {
+                                console.log(appointment)
                                 return (
                                     <tr class="bg-white border-b hover:bg-gray-50">
                                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
@@ -84,7 +126,7 @@ const AppointmentTable = () => {
                                         </td>
 
                                         <td class="px-6 py-4 text-center">
-                                            <button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 ">Completed</button>
+                                            <button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 " onClick={()=>handleComplete(appointment.id)}>Completed</button>
 
                                         </td>
                                     </tr>

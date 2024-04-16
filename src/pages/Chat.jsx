@@ -207,7 +207,6 @@ const Chat = () => {
       }
    };
 
-
    return (
       <>
          <Navbar />
@@ -311,18 +310,19 @@ const Chat = () => {
 
                         {
                            messages.map((msg, index) => {
+                              // console.log(msg)
                               const isSentByMe = msg.sender === userId;
                               return (
                                  <>
                                     {!isSentByMe ? (<div className="flex items-end gap-2.5 mb-4">
                                        <div className="pb-1">
-                                          <img className="w-8 h-8 rounded-full" src="/images/avatar.jpg" alt="Jese image" />
+                                          <img className="w-8 h-8 rounded-full" src={`http://localhost:8000${selectedUser.image}`} alt="Jese image" />
                                        </div>
                                        <div className="flex flex-col w-full max-w-[60%] leading-1.5 p-2 border-gray-200 bg-gray-100 rounded-lg dark:bg-gray-700">
                                           <p className="text-sm font-normal py-2.5 pt-0 text-gray-900 dark:text-white">{msg.content}</p>
                                           <div className="flex justify-between">
                                              <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Delivered</span>
-                                             <span className="text-sm font-normal text-gray-500 dark:text-gray-400">11:46</span>
+                                             <span className="text-sm font-normal text-gray-500 dark:text-gray-400">{`${new Date(msg.created_at).getHours()} : ${new Date(msg.created_at).getMinutes()}`}</span>
                                           </div>
                                        </div>
                                     </div>) : (
@@ -330,12 +330,12 @@ const Chat = () => {
                                           <div className="flex flex-col  max-w-[60%] leading-1.5 p-2 border-gray-200 bg-blue-700  rounded-lg">
                                              <p className="text-sm font-normal py-2.5 pt-0 text-white dark:text-white">{msg.content}</p>
                                              <div className="flex justify-between">
-                                                <span className="text-sm font-normal text-gray-50">Delivered</span>
-                                                <span className="text-sm font-normal text-gray-50">11:46</span>
+                                                <span className="text-sm font-normal text-gray-50 me-5">Delivered</span>
+                                                <span className="text-sm font-normal text-gray-50">{`${new Date(msg.created_at).getHours()} : ${new Date(msg.created_at).getMinutes()}`}</span>
                                              </div>
                                           </div>
                                           <div className="pb-1">
-                                             <img className="w-8 h-8 rounded-full" src="/images/avatar.jpg" alt="Jese image" />
+                                             <img className="w-8 h-8 rounded-full" src={`http://localhost:8000${localStorage.getItem("userImage")}`} alt="Jese image" />
                                           </div>
                                        </div>
                                     )}
